@@ -1,0 +1,13 @@
+spring:
+ application:
+  name: order-management-service
+ jpa:
+  hibernate:
+   ddl-auto: none
+ datasource:
+  driver-class-name: org.postgresql.Driver
+  url: jdbc:postgresql://localhost:5433/order_management
+  username: postgres
+  password: cfvgb33
+ liquibase:
+  change-log: db/changelog/changelog-master.xml

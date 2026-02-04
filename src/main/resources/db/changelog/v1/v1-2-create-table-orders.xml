@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1-3-create-enum-status" author="warm4ik">
+        <sql>
+            CREATE TYPE order_status AS ENUM ('CREATED','IN_PROGRESS','COMPLETED');
+        </sql>
+    </changeSet>
+
+    <changeSet id="v1-4-create-table-orders" author="warm4ik">
+        <createTable tableName="orders">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="uuid"/>
+            <column name="description" type="text"/>
+            <column name="status" type="order_status" defaultValue="CREATED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1-5-create-fk-on-users" author="warm4ik">
+        <addForeignKeyConstraint
+                baseTableName="orders"
+                baseColumnNames="user_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="orders_user_id_fkey"
+                onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

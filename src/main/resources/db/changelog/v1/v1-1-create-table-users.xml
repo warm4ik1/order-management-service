@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1-1-create-enum-user-role" author="warm4ik">
+        <sql>
+            CREATE TYPE user_role AS ENUM ('USER', 'ADMIN');
+        </sql>
+    </changeSet>
+
+    <changeSet id="v1-2-create-table-users" author="warm4ik">
+        <createTable tableName="users">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="username" type="varchar(100)">
+                <constraints nullable="false" unique="true" />
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="user_role" defaultValue="USER">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+</databaseChangeLog>
