@@ -26,9 +26,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@NoArgsConstructor
 @Getter
 @Setter
 public class Order {
