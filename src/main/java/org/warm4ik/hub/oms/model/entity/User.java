@@ -9,8 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,8 +26,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
 
   @Id
@@ -47,10 +43,8 @@ public class User {
   @Enumerated(EnumType.STRING)
   @Column(columnDefinition = "user_role", nullable = false)
   @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-  @Builder.Default
   private UserRole role = UserRole.USER;
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
-  @Builder.Default
   private List<Order> orders = new ArrayList<>();
 }
