@@ -12,7 +12,6 @@ import org.warm4ik.hub.oms.model.request.user.RegisterUserRequest;
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
-  @Mapping(target = "id", ignore = true)
   @Mapping(target = "role", ignore = true)
   @Mapping(target = "orders", ignore = true)
   User createUser(RegisterUserRequest request);
