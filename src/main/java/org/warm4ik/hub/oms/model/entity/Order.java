@@ -11,8 +11,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,8 +27,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "orders")
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Getter
 @Setter
 public class Order {
@@ -56,7 +52,6 @@ public class Order {
   @Enumerated(EnumType.STRING)
   @Column(columnDefinition = "order_status", nullable = false)
   @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-  @Builder.Default
   private OrderStatus status = OrderStatus.CREATED;
 
   @PrePersist
