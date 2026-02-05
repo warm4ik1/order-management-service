@@ -14,7 +14,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 import org.warm4ik.hub.oms.model.enums.UserRole;
 
 import java.util.ArrayList;
@@ -26,6 +28,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
   @Id
@@ -42,8 +46,11 @@ public class User {
 
   @Enumerated(EnumType.STRING)
   @Column(columnDefinition = "user_role", nullable = false)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Builder.Default
   private UserRole role = UserRole.USER;
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  @Builder.Default
   private List<Order> orders = new ArrayList<>();
 }

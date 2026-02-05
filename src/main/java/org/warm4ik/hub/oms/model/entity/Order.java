@@ -16,9 +16,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 import org.warm4ik.hub.oms.model.enums.OrderStatus;
 
 import java.time.LocalDateTime;
@@ -27,6 +29,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "orders")
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Getter
 @Setter
 public class Order {
@@ -51,6 +55,8 @@ public class Order {
 
   @Enumerated(EnumType.STRING)
   @Column(columnDefinition = "order_status", nullable = false)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Builder.Default
   private OrderStatus status = OrderStatus.CREATED;
 
   @PrePersist
