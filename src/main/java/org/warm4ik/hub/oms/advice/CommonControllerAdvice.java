@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.warm4ik.hub.oms.model.constants.ApiConstants;
+import org.warm4ik.hub.oms.model.exception.DataExistException;
 import org.warm4ik.hub.oms.model.exception.NotFoundException;
 
 import java.util.Arrays;
@@ -21,6 +22,16 @@ public class CommonControllerAdvice {
   protected ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
     logStackTrace(ex);
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(DataExistException.class)
+  @ResponseBody
+  protected ResponseEntity<String> handleDataExistException(DataExistException ex) {
+    logStackTrace(ex);
+
+    return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ex.getMessage());
   }
 
   private void logStackTrace(Exception ex) {
