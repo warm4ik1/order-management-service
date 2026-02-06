@@ -1,6 +1,10 @@
 package org.warm4ik.hub.oms.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +17,8 @@ import org.warm4ik.hub.oms.model.exception.DataExistException;
 import org.warm4ik.hub.oms.model.request.user.RegisterUserRequest;
 import org.warm4ik.hub.oms.model.response.ApiResponse;
 import org.warm4ik.hub.oms.repository.UserRepository;
+import org.warm4ik.hub.oms.security.CustomUserDetails;
+import org.warm4ik.hub.oms.security.JwtTokenProvider;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +27,8 @@ public class AuthService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
+  private final AuthenticationManager authManager;
+  private final JwtTokenProvider jwt;
 
   @Transactional
   public ApiResponse<UserDTO> register(RegisterUserRequest request) {
@@ -37,5 +45,19 @@ public class AuthService {
 
     return ApiResponse.createSuccessful(
         ApiSuccessMessage.REGISTRATION_COMPLETED.getMessage(), userDTO);
+  }
+
+  public String login(String username, String password) {
+
+    Authentication auth =
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+
+    Object principal = auth.getPrincipal();
+
+    if (!(principal instanceof CustomUserDetails userDetails)) {
+      throw new AuthenticationServiceException(ApiErrorMessage.INVALID_PRINCIPAL_TYPE.getMessage());
+    }
+
+    return jwt.generateTokenFromPrincipal(userDetails);
   }
 }

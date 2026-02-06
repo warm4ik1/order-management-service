@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.warm4ik.hub.oms.model.dto.UserDTO;
+import org.warm4ik.hub.oms.model.request.auth.LoginRequest;
 import org.warm4ik.hub.oms.model.request.user.RegisterUserRequest;
 import org.warm4ik.hub.oms.model.response.ApiResponse;
 import org.warm4ik.hub.oms.service.AuthService;
@@ -25,5 +26,13 @@ public class AuthController {
       @RequestBody @Valid RegisterUserRequest request) {
 
     return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<ApiResponse<String>> login(@RequestBody @Valid LoginRequest request) {
+
+    return ResponseEntity.ok(
+        ApiResponse.createSuccessful(
+            "Login successful", authService.login(request.getUsername(), request.getPassword())));
   }
 }
