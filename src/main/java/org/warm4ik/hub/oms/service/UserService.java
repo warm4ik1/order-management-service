@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.warm4ik.hub.oms.mapper.UserMapper;
 import org.warm4ik.hub.oms.model.dto.UserDTO;
-import org.warm4ik.hub.oms.model.entity.User;
 import org.warm4ik.hub.oms.model.exception.NotFoundException;
-import org.warm4ik.hub.oms.model.request.user.RegisterUserRequest;
 import org.warm4ik.hub.oms.model.response.ApiResponse;
 import org.warm4ik.hub.oms.model.response.PaginationResponse;
 import org.warm4ik.hub.oms.repository.UserRepository;
@@ -22,16 +20,6 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final UserMapper userMapper;
-
-  @Transactional
-  public ApiResponse<UserDTO> register(RegisterUserRequest request) {
-
-    User user = userMapper.createUser(request);
-    userRepository.save(user);
-
-    return ApiResponse.createSuccessful(
-        "Регистрация прошла успешно!", userMapper.userToUserDTO(user));
-  }
 
   public ApiResponse<PaginationResponse<UserDTO>> findAllUsers(Pageable pageable) {
 

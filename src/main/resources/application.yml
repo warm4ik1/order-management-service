@@ -19,6 +19,7 @@ end:
  point:
   users: /api/users
   orders: /api/orders
+  auth: /api/auth
 logging:
  level:
   org.hibernate.SQL: DEBUG
