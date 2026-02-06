@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.warm4ik.hub.oms.mapper.UserMapper;
 import org.warm4ik.hub.oms.model.constants.ApiErrorMessage;
+import org.warm4ik.hub.oms.model.constants.ApiSuccessMessage;
 import org.warm4ik.hub.oms.model.dto.UserDTO;
 import org.warm4ik.hub.oms.model.entity.User;
 import org.warm4ik.hub.oms.model.exception.DataExistException;
@@ -35,6 +36,6 @@ public class AuthService {
     UserDTO userDTO = userMapper.userToUserDTO(user);
 
     return ApiResponse.createSuccessful(
-        "Регистрация прошла успешно!", userDTO);
+        ApiSuccessMessage.REGISTRATION_COMPLETED.getMessage(), userDTO);
   }
 }

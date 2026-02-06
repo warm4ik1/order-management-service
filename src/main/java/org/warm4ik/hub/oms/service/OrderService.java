@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.warm4ik.hub.oms.mapper.OrderMapper;
 import org.warm4ik.hub.oms.model.constants.ApiErrorMessage;
+import org.warm4ik.hub.oms.model.constants.ApiSuccessMessage;
 import org.warm4ik.hub.oms.model.dto.OrderDTO;
 import org.warm4ik.hub.oms.model.dto.OrderSearchDTO;
 import org.warm4ik.hub.oms.model.entity.Order;
@@ -41,7 +42,7 @@ public class OrderService {
                     new NotFoundException(
                         ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage(orderId)));
 
-    return ApiResponse.createSuccessful("Заказ успешно найден.", orderDTO);
+    return ApiResponse.createSuccessful(ApiSuccessMessage.ORDER_FOUND.getMessage(), orderDTO);
   }
 
   @Transactional
@@ -57,19 +58,21 @@ public class OrderService {
                         ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage(orderId)));
 
     if (OrderStatus.COMPLETED.equals(order.getStatus()))
-      return ApiResponse.createFailed("Заказ уже был завершён! Изменить статус невозможно.");
+      return ApiResponse.createFailed(ApiErrorMessage.ORDER_ALREADY_COMPLETED.getMessage());
 
     order.setStatus(request.getStatus());
+    orderRepository.save(order);
+    OrderDTO orderDTO = orderMapper.orderToOrderDTO(order);
+
     return ApiResponse.createSuccessful(
-        "Статус заказа успешно обновлён.",
-        orderMapper.orderToOrderDTO(orderRepository.save(order)));
+        ApiSuccessMessage.ORDER_STATUS_UPDATED.getMessage(), orderDTO);
   }
 
   @Transactional
   public void deleteOrderById(UUID orderId) {
 
     if (!orderRepository.existsById(orderId)) {
-      throw new NotFoundException("Order с id" + orderId + " не найден и не может быть удалён.");
+      throw new NotFoundException(ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage(orderId));
     }
     orderRepository.deleteById(orderId);
   }
@@ -87,7 +90,8 @@ public class OrderService {
 
     Order order = orderMapper.createOrder(request, user);
     return ApiResponse.createSuccessful(
-        "Заказ успешно создан.", orderMapper.orderToOrderDTO(orderRepository.save(order)));
+        ApiSuccessMessage.ORDER_CREATED.getMessage(order.getId()),
+        orderMapper.orderToOrderDTO(orderRepository.save(order)));
   }
 
   public ApiResponse<PaginationResponse<OrderSearchDTO>> findAllOrders(Pageable pageable) {
@@ -105,6 +109,6 @@ public class OrderService {
                 ));
 
     return ApiResponse.createSuccessful(
-        "Все доступные заказы успешно получены.", paginationResponse);
+        ApiSuccessMessage.ALL_ORDERS_FETCHED.getMessage(), paginationResponse);
   }
 }
