@@ -1,3 +1,4 @@
+# spring
 spring:
  application:
   name: order-management-service
@@ -15,11 +16,21 @@ spring:
   password: cfvgb33
  liquibase:
   change-log: db/changelog/changelog-master.xml
+
+# end-points
 end:
  point:
   users: /api/users
   orders: /api/orders
   auth: /api/auth
+
+# jwt
+jwt:
+ secret: kRHElXnNdUPQJ61NqBYQgLl5oXOiUZjGDtTqp8EdXD+75BjPCsXiH1g7NdesRfvaOZ6XaCfuzblg4st/AZQnVQ==
+ lifetime: 3600000
+ expiration: 103600000
+
+# logging
 logging:
  level:
   org.hibernate.SQL: DEBUG
