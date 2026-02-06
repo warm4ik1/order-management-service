@@ -7,12 +7,10 @@ import lombok.NoArgsConstructor;
 
 import org.warm4ik.hub.oms.model.enums.OrderStatus;
 
-import java.io.Serializable;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateStatusOrderRequest implements Serializable {
+public class UpdateStatusOrderRequest {
 
     @NotNull
     private OrderStatus status;

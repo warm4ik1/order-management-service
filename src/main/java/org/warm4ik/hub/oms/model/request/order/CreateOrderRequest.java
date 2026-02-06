@@ -6,13 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateOrderRequest implements Serializable {
+public class CreateOrderRequest {
 
     @NotNull
     private UUID userId; // TODO: после добавления авторизации исправить
