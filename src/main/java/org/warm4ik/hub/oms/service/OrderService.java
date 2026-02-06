@@ -68,6 +68,9 @@ public class OrderService {
   @Transactional
   public void deleteOrderById(UUID orderId) {
 
+    if (!orderRepository.existsById(orderId)) {
+      throw new NotFoundException("Order с id" + orderId + " не найден и не может быть удалён.");
+    }
     orderRepository.deleteById(orderId);
   }
 
