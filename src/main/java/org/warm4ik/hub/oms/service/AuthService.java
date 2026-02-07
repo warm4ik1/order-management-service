@@ -19,9 +19,9 @@ import org.warm4ik.hub.oms.model.exception.NotFoundException;
 import org.warm4ik.hub.oms.model.request.user.RegisterUserRequest;
 import org.warm4ik.hub.oms.model.response.ApiResponse;
 import org.warm4ik.hub.oms.repository.UserRepository;
-import org.warm4ik.hub.oms.security.CustomUserDetails;
-import org.warm4ik.hub.oms.security.JwtTokenProvider;
-import org.warm4ik.hub.oms.security.SecurityUtils;
+import org.warm4ik.hub.oms.security.model.CustomUserDetails;
+import org.warm4ik.hub.oms.security.provider.JwtTokenProvider;
+import org.warm4ik.hub.oms.security.utils.SecurityUtils;
 
 import java.util.UUID;
 

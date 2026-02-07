@@ -21,7 +21,7 @@ import org.warm4ik.hub.oms.model.response.ApiResponse;
 import org.warm4ik.hub.oms.model.response.PaginationResponse;
 import org.warm4ik.hub.oms.repository.OrderRepository;
 import org.warm4ik.hub.oms.repository.UserRepository;
-import org.warm4ik.hub.oms.security.SecurityUtils;
+import org.warm4ik.hub.oms.security.utils.SecurityUtils;
 
 import java.util.UUID;
 

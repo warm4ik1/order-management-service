@@ -2,6 +2,7 @@ package org.warm4ik.hub.oms.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import org.warm4ik.hub.oms.service.OrderService;
 
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("${end.point.orders}")
 @RequiredArgsConstructor
@@ -70,6 +72,7 @@ public class OrderController {
       @RequestBody @Valid CreateOrderRequest request) {
 
     ApiResponse<OrderDTO> response = orderService.createOrder(request);
+
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 

@@ -37,6 +37,7 @@ public class AuthController {
 
     ApiResponse<TokenDTO> response =
         authService.login(request.getUsername(), request.getPassword());
+
     return ResponseEntity.ok(response);
   }
 
