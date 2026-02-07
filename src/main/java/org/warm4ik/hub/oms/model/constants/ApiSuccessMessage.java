@@ -12,10 +12,11 @@ public enum ApiSuccessMessage {
     ORDER_CREATED("The order with id: %s was successfully created."),
     ALL_ORDERS_FETCHED("All available orders have been successfully received."),
     ALL_USERS_FETCHED("All available users have been successfully received."),
-    ORDER_FOUND("The order was successfully found."),
+    ORDER_FETCHED("The order was successfully found."),
+    USER_ORDERS_FETCHED("The user orders was successfully found."),
     REGISTRATION_COMPLETED("Registration completed successfully."),
     PROFILE_LOADED("User profile fetched successfully."),
-    LOGIN_SUCCESSFUL("Login successful.");
+    LOGIN_SUCCEEDED("Login successful.");
 
     private final String message;
 

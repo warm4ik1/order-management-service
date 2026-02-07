@@ -64,7 +64,7 @@ public class AuthService {
     }
 
     return ApiResponse.createSuccessful(
-        ApiSuccessMessage.LOGIN_SUCCESSFUL.getMessage(),
+        ApiSuccessMessage.LOGIN_SUCCEEDED.getMessage(),
         new TokenDTO(jwt.generateTokenFromPrincipal(userDetails)));
   }
 
