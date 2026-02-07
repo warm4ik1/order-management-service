@@ -3,17 +3,20 @@ package org.warm4ik.hub.oms.advice;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.warm4ik.hub.oms.model.constants.ApiConstants;
+import org.warm4ik.hub.oms.model.constants.ApiErrorMessage;
 import org.warm4ik.hub.oms.model.exception.BusinessConflictException;
 import org.warm4ik.hub.oms.model.exception.DataExistException;
 import org.warm4ik.hub.oms.model.exception.NotFoundException;
+import org.springframework.security.access.AccessDeniedException;
+import tools.jackson.databind.exc.InvalidFormatException;
 
-import java.nio.file.AccessDeniedException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -40,9 +43,7 @@ public class CommonControllerAdvice {
   @ResponseBody
   protected ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
     logStackTrace(ex);
-    return ResponseEntity
-            .status(HttpStatus.FORBIDDEN)
-            .body(ex.getMessage());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
   }
 
   @ExceptionHandler(DataExistException.class)
@@ -55,16 +56,31 @@ public class CommonControllerAdvice {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseBody
-  protected ResponseEntity<List<String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+  protected ResponseEntity<List<String>> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
     logStackTrace(ex);
 
-    List<String> errors = ex.getBindingResult().getAllErrors().stream()
-            .map(ObjectError::getDefaultMessage)
-            .toList();
+    List<String> errors =
+        ex.getBindingResult().getAllErrors().stream().map(ObjectError::getDefaultMessage).toList();
 
     return ResponseEntity.badRequest().body(errors);
   }
 
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  @ResponseBody
+  protected ResponseEntity<String> handleHttpMessageNotReadable(
+      HttpMessageNotReadableException ex) {
+
+    logStackTrace(ex);
+
+    Throwable cause = ex.getCause();
+    if (cause instanceof InvalidFormatException) {
+      return ResponseEntity.badRequest()
+          .body(ApiErrorMessage.INVALID_ENUM_OR_FIELD_VALUE.getMessage());
+    }
+
+    return ResponseEntity.badRequest().body(ApiErrorMessage.MALFORMED_JSON_REQUEST.getMessage());
+  }
 
   private void logStackTrace(Exception ex) {
     StringBuilder stackTrace = new StringBuilder();
