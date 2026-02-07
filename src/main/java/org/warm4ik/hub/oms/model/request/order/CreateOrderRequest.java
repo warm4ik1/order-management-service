@@ -1,21 +1,19 @@
 package org.warm4ik.hub.oms.model.request.order;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateOrderRequest {
 
-    @NotNull
-    private UUID userId; // TODO: после добавления авторизации исправить
     @NotBlank
+    @Size(min = 20, max = 500)
     private String description;
 
 }
