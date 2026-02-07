@@ -11,14 +11,19 @@ import org.springframework.transaction.annotation.Transactional;
 import org.warm4ik.hub.oms.mapper.UserMapper;
 import org.warm4ik.hub.oms.model.constants.ApiErrorMessage;
 import org.warm4ik.hub.oms.model.constants.ApiSuccessMessage;
+import org.warm4ik.hub.oms.model.dto.TokenDTO;
 import org.warm4ik.hub.oms.model.dto.UserDTO;
 import org.warm4ik.hub.oms.model.entity.User;
 import org.warm4ik.hub.oms.model.exception.DataExistException;
+import org.warm4ik.hub.oms.model.exception.NotFoundException;
 import org.warm4ik.hub.oms.model.request.user.RegisterUserRequest;
 import org.warm4ik.hub.oms.model.response.ApiResponse;
 import org.warm4ik.hub.oms.repository.UserRepository;
 import org.warm4ik.hub.oms.security.CustomUserDetails;
 import org.warm4ik.hub.oms.security.JwtTokenProvider;
+import org.warm4ik.hub.oms.security.SecurityUtils;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +52,7 @@ public class AuthService {
         ApiSuccessMessage.REGISTRATION_COMPLETED.getMessage(), userDTO);
   }
 
-  public String login(String username, String password) {
+  public ApiResponse<TokenDTO> login(String username, String password) {
 
     Authentication auth =
         authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -58,6 +63,22 @@ public class AuthService {
       throw new AuthenticationServiceException(ApiErrorMessage.INVALID_PRINCIPAL_TYPE.getMessage());
     }
 
-    return jwt.generateTokenFromPrincipal(userDetails);
+    return ApiResponse.createSuccessful(
+        ApiSuccessMessage.LOGIN_SUCCESSFUL.getMessage(),
+        new TokenDTO(jwt.generateTokenFromPrincipal(userDetails)));
+  }
+
+  @Transactional(readOnly = true)
+  public ApiResponse<UserDTO> profile() {
+
+    UUID id = SecurityUtils.currentUserId();
+    UserDTO userDTO =
+        userRepository
+            .findById(id)
+            .map(userMapper::userToUserDTO)
+            .orElseThrow(
+                () -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage()));
+
+    return ApiResponse.createSuccessful(ApiSuccessMessage.PROFILE_LOADED.getMessage(), userDTO);
   }
 }
