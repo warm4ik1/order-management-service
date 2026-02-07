@@ -33,6 +33,7 @@ public class OrderService {
   private final OrderMapper orderMapper;
   private final UserRepository userRepository;
 
+  @Transactional(readOnly = true)
   public ApiResponse<PaginationResponse<OrderDTO>> getCurrentUserOrders(Pageable pageable) {
 
     UUID userId = SecurityUtils.currentUserId();
@@ -44,10 +45,10 @@ public class OrderService {
         new PaginationResponse<>(
             orders.getContent(),
             new PaginationResponse.Pagination(
-                orders.getTotalElements(), // общее кол-во записей
-                pageable.getPageSize(), // размер страницы
-                pageable.getPageNumber() + 1, // номер текущей страницы
-                orders.getTotalPages() // общее кол-во страниц
+                orders.getTotalElements(),
+                pageable.getPageSize(),
+                pageable.getPageNumber() + 1,
+                orders.getTotalPages()
                 ));
 
     return ApiResponse.createSuccessful(
@@ -66,9 +67,18 @@ public class OrderService {
                     new NotFoundException(
                         ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage(orderId)));
 
-    if (OrderStatus.COMPLETED.equals(order.getStatus()))
-      throw new BusinessConflictException(
-          ApiErrorMessage.ORDER_STATUS_UPDATE_NOT_ALLOWED.getMessage());
+    OrderStatus currentStatus = order.getStatus();
+    OrderStatus newStatus = request.getStatus();
+
+    if (!currentStatus.canTransitionTo(newStatus)) {
+      String errorMessage =
+          String.format(
+              "%s Cannot change from '%s' to '%s'",
+              ApiErrorMessage.ORDER_STATUS_UPDATE_NOT_ALLOWED.getMessage(),
+              currentStatus,
+              newStatus);
+      throw new BusinessConflictException(errorMessage);
+    }
 
     order.setStatus(request.getStatus());
     orderRepository.save(order);
@@ -114,6 +124,7 @@ public class OrderService {
         orderMapper.orderToOrderDTO(createdOrder));
   }
 
+  @Transactional(readOnly = true)
   public ApiResponse<PaginationResponse<OrderDTO>> findAllOrders(Pageable pageable) {
 
     Page<OrderDTO> orders = orderRepository.findAll(pageable).map(orderMapper::orderToOrderDTO);
@@ -121,10 +132,10 @@ public class OrderService {
         new PaginationResponse<>(
             orders.getContent(),
             new PaginationResponse.Pagination(
-                orders.getTotalElements(), // общее кол-во записей
-                pageable.getPageSize(), // размер страницы
-                pageable.getPageNumber() + 1, // номер текущей страницы
-                orders.getTotalPages() // общее кол-во страниц
+                orders.getTotalElements(),
+                pageable.getPageSize(),
+                pageable.getPageNumber() + 1,
+                orders.getTotalPages()
                 ));
 
     return ApiResponse.createSuccessful(
