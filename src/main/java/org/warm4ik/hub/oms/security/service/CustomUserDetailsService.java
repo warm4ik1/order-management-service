@@ -1,4 +1,4 @@
-package org.warm4ik.hub.oms.security;
+package org.warm4ik.hub.oms.security.service;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.warm4ik.hub.oms.model.constants.ApiErrorMessage;
 import org.warm4ik.hub.oms.repository.UserRepository;
+import org.warm4ik.hub.oms.security.model.CustomUserDetails;
 
 @RequiredArgsConstructor
 @NullMarked

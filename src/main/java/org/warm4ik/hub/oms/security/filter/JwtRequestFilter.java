@@ -1,4 +1,4 @@
-package org.warm4ik.hub.oms.security;
+package org.warm4ik.hub.oms.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.warm4ik.hub.oms.model.enums.UserRole;
+import org.warm4ik.hub.oms.security.model.CustomUserDetails;
+import org.warm4ik.hub.oms.security.provider.JwtTokenProvider;
 
 import java.io.IOException;
 import java.util.UUID;

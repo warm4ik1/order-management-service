@@ -1,4 +1,4 @@
-package org.warm4ik.hub.oms.security;
+package org.warm4ik.hub.oms.security.provider;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -12,6 +12,7 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.warm4ik.hub.oms.model.enums.UserRole;
+import org.warm4ik.hub.oms.security.model.CustomUserDetails;
 
 import javax.crypto.SecretKey;
 import java.util.Date;

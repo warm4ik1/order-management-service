@@ -1,4 +1,4 @@
-package org.warm4ik.hub.oms.security;
+package org.warm4ik.hub.oms.security.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

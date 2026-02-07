@@ -1,10 +1,11 @@
-package org.warm4ik.hub.oms.security;
+package org.warm4ik.hub.oms.security.utils;
 
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.warm4ik.hub.oms.model.constants.ApiErrorMessage;
 import org.warm4ik.hub.oms.model.enums.UserRole;
+import org.warm4ik.hub.oms.security.model.CustomUserDetails;
 
 import java.util.UUID;
 
