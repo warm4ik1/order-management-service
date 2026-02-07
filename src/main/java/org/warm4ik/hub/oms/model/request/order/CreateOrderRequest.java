@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateOrderRequest {
 
-    @NotBlank
-    @Size(min = 20, max = 500)
+    @NotBlank(message = "Description is required")
+    @Size(min = 20, max = 500, message = "Description must be between 20 and 500 characters")
     private String description;
 
 }

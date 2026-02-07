@@ -12,6 +12,6 @@ import org.warm4ik.hub.oms.model.enums.OrderStatus;
 @NoArgsConstructor
 public class UpdateStatusOrderRequest {
 
-    @NotNull
+    @NotNull(message = "Status is required")
     private OrderStatus status;
 }
