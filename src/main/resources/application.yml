@@ -49,3 +49,13 @@ logging:
   org.hibernate.SQL: DEBUG
   org.hibernate.orm.jdbc.bind: TRACE
   org.warm4ik.hub.oms: TRACE
+
+# swagger
+springdoc:
+ api-docs:
+  path: "/v1/api-docs"
+ swagger-ui:
+  path: "/swagger-ui.html"
+swagger:
+ servers:
+  first: "http://localhost:8080"
