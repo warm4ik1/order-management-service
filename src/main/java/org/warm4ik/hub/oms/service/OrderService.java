@@ -3,16 +3,17 @@ package org.warm4ik.hub.oms.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.warm4ik.hub.oms.mapper.OrderMapper;
 import org.warm4ik.hub.oms.model.constants.ApiErrorMessage;
 import org.warm4ik.hub.oms.model.constants.ApiSuccessMessage;
 import org.warm4ik.hub.oms.model.dto.OrderDTO;
-import org.warm4ik.hub.oms.model.dto.OrderSearchDTO;
 import org.warm4ik.hub.oms.model.entity.Order;
 import org.warm4ik.hub.oms.model.entity.User;
 import org.warm4ik.hub.oms.model.enums.OrderStatus;
+import org.warm4ik.hub.oms.model.exception.BusinessConflictException;
 import org.warm4ik.hub.oms.model.exception.NotFoundException;
 import org.warm4ik.hub.oms.model.request.order.CreateOrderRequest;
 import org.warm4ik.hub.oms.model.request.order.UpdateStatusOrderRequest;
@@ -20,6 +21,7 @@ import org.warm4ik.hub.oms.model.response.ApiResponse;
 import org.warm4ik.hub.oms.model.response.PaginationResponse;
 import org.warm4ik.hub.oms.repository.OrderRepository;
 import org.warm4ik.hub.oms.repository.UserRepository;
+import org.warm4ik.hub.oms.security.SecurityUtils;
 
 import java.util.UUID;
 
@@ -31,18 +33,25 @@ public class OrderService {
   private final OrderMapper orderMapper;
   private final UserRepository userRepository;
 
-  public ApiResponse<OrderDTO> getOrderById(UUID orderId) {
+  public ApiResponse<PaginationResponse<OrderDTO>> getCurrentUserOrders(Pageable pageable) {
 
-    OrderDTO orderDTO =
-        orderRepository
-            .findById(orderId)
-            .map(orderMapper::orderToOrderDTO)
-            .orElseThrow(
-                () ->
-                    new NotFoundException(
-                        ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage(orderId)));
+    UUID userId = SecurityUtils.currentUserId();
 
-    return ApiResponse.createSuccessful(ApiSuccessMessage.ORDER_FOUND.getMessage(), orderDTO);
+    Page<OrderDTO> orders =
+        orderRepository.findAllByUserId(userId, pageable).map(orderMapper::orderToOrderDTO);
+
+    PaginationResponse<OrderDTO> paginationResponse =
+        new PaginationResponse<>(
+            orders.getContent(),
+            new PaginationResponse.Pagination(
+                orders.getTotalElements(), // общее кол-во записей
+                pageable.getPageSize(), // размер страницы
+                pageable.getPageNumber() + 1, // номер текущей страницы
+                orders.getTotalPages() // общее кол-во страниц
+                ));
+
+    return ApiResponse.createSuccessful(
+        ApiSuccessMessage.USER_ORDERS_FETCHED.getMessage(), paginationResponse);
   }
 
   @Transactional
@@ -58,7 +67,8 @@ public class OrderService {
                         ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage(orderId)));
 
     if (OrderStatus.COMPLETED.equals(order.getStatus()))
-      return ApiResponse.createFailed(ApiErrorMessage.ORDER_ALREADY_COMPLETED.getMessage());
+      throw new BusinessConflictException(
+          ApiErrorMessage.ORDER_STATUS_UPDATE_NOT_ALLOWED.getMessage());
 
     order.setStatus(request.getStatus());
     orderRepository.save(order);
@@ -71,34 +81,43 @@ public class OrderService {
   @Transactional
   public void deleteOrderById(UUID orderId) {
 
-    if (!orderRepository.existsById(orderId)) {
-      throw new NotFoundException(ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage(orderId));
+    Order order =
+        orderRepository
+            .findById(orderId)
+            .orElseThrow(
+                () -> new NotFoundException(ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage()));
+    UUID userId = SecurityUtils.currentUserId();
+
+    if (!SecurityUtils.isAdmin() && !order.getUser().getId().equals(userId)) {
+      throw new AccessDeniedException(ApiErrorMessage.ACCESS_FORBIDDEN.getMessage());
     }
-    orderRepository.deleteById(orderId);
+
+    orderRepository.delete(order);
   }
 
   @Transactional
   public ApiResponse<OrderDTO> createOrder(CreateOrderRequest request) {
 
+    UUID userId = SecurityUtils.currentUserId();
+
     User user =
         userRepository
-            .findById(request.getUserId())
+            .findById(userId)
             .orElseThrow(
                 () ->
-                    new NotFoundException(
-                        ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(request.getUserId())));
+                    new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId)));
 
-    Order order = orderMapper.createOrder(request, user);
+    Order createdOrder = orderRepository.save(orderMapper.createOrder(request, user));
+
     return ApiResponse.createSuccessful(
-        ApiSuccessMessage.ORDER_CREATED.getMessage(order.getId()),
-        orderMapper.orderToOrderDTO(orderRepository.save(order)));
+        ApiSuccessMessage.ORDER_CREATED.getMessage(createdOrder.getId()),
+        orderMapper.orderToOrderDTO(createdOrder));
   }
 
-  public ApiResponse<PaginationResponse<OrderSearchDTO>> findAllOrders(Pageable pageable) {
+  public ApiResponse<PaginationResponse<OrderDTO>> findAllOrders(Pageable pageable) {
 
-    Page<OrderSearchDTO> orders =
-        orderRepository.findAll(pageable).map(orderMapper::orderToOrderSearchDTO);
-    PaginationResponse<OrderSearchDTO> paginationResponse =
+    Page<OrderDTO> orders = orderRepository.findAll(pageable).map(orderMapper::orderToOrderDTO);
+    PaginationResponse<OrderDTO> paginationResponse =
         new PaginationResponse<>(
             orders.getContent(),
             new PaginationResponse.Pagination(
