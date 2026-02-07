@@ -4,7 +4,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.warm4ik.hub.oms.model.dto.OrderDTO;
-import org.warm4ik.hub.oms.model.dto.OrderSearchDTO;
 import org.warm4ik.hub.oms.model.entity.Order;
 import org.warm4ik.hub.oms.model.entity.User;
 import org.warm4ik.hub.oms.model.request.order.CreateOrderRequest;
@@ -14,9 +13,8 @@ import org.warm4ik.hub.oms.model.request.order.CreateOrderRequest;
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface OrderMapper {
 
+    @Mapping(target = "userId", source = "user.id")
     OrderDTO orderToOrderDTO(Order order);
-
-    OrderSearchDTO orderToOrderSearchDTO(Order order);
 
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "description", source = "request.description")

@@ -15,6 +15,7 @@ import java.util.UUID;
 public class OrderDTO implements Serializable {
 
   private UUID id;
+  private UUID userId;
   private String description;
   private LocalDateTime createdAt;
   private OrderStatus status;
