@@ -25,7 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
 
-  private final UserService userService;
+  private final UserService userServiceImpl;
 
   @GetMapping()
   @PreAuthorize("hasRole('ADMIN')")
@@ -34,7 +34,7 @@ public class UserController {
       @RequestParam(name = "limit", defaultValue = "10") int limit) {
 
     Pageable pageable = PageRequest.of(page, limit);
-    ApiResponse<PaginationResponse<UserDTO>> response = userService.findAllUsers(pageable);
+    ApiResponse<PaginationResponse<UserDTO>> response = userServiceImpl.findAllUsers(pageable);
 
     return ResponseEntity.ok(response);
   }
@@ -43,7 +43,7 @@ public class UserController {
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> deleteUserById(@PathVariable(name = "id") UUID id) {
 
-    userService.deleteUserById(id);
+    userServiceImpl.deleteUserById(id);
 
     return ResponseEntity.noContent().build();
   }

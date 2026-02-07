@@ -32,7 +32,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderController {
 
-  private final OrderService orderService;
+  private final OrderService orderServiceImpl;
 
   @GetMapping()
   public ResponseEntity<ApiResponse<PaginationResponse<OrderDTO>>> getCurrentUserOrders(
@@ -41,7 +41,7 @@ public class OrderController {
 
     Pageable pageable = PageRequest.of(page, limit);
     ApiResponse<PaginationResponse<OrderDTO>> response =
-        orderService.getCurrentUserOrders(pageable);
+        orderServiceImpl.getCurrentUserOrders(pageable);
 
     return ResponseEntity.ok(response);
   }
@@ -52,7 +52,7 @@ public class OrderController {
       @PathVariable(name = "id") UUID orderId,
       @RequestBody @Valid UpdateStatusOrderRequest request) {
 
-    ApiResponse<OrderDTO> response = orderService.updateStatusOrderById(orderId, request);
+    ApiResponse<OrderDTO> response = orderServiceImpl.updateStatusOrderById(orderId, request);
 
     return ResponseEntity.ok(response);
   }
@@ -61,7 +61,7 @@ public class OrderController {
   @PreAuthorize("hasAnyRole('USER','ADMIN')")
   public ResponseEntity<Void> deleteOrderById(@PathVariable(name = "id") UUID orderId) {
 
-    orderService.deleteOrderById(orderId);
+    orderServiceImpl.deleteOrderById(orderId);
 
     return ResponseEntity.noContent().build();
   }
@@ -71,7 +71,7 @@ public class OrderController {
   public ResponseEntity<ApiResponse<OrderDTO>> createOrder(
       @RequestBody @Valid CreateOrderRequest request) {
 
-    ApiResponse<OrderDTO> response = orderService.createOrder(request);
+    ApiResponse<OrderDTO> response = orderServiceImpl.createOrder(request);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
@@ -83,7 +83,7 @@ public class OrderController {
       @RequestParam(name = "limit", defaultValue = "10") int limit) {
 
     Pageable pageable = PageRequest.of(page, limit);
-    ApiResponse<PaginationResponse<OrderDTO>> response = orderService.findAllOrders(pageable);
+    ApiResponse<PaginationResponse<OrderDTO>> response = orderServiceImpl.findAllOrders(pageable);
 
     return ResponseEntity.ok(response);
   }

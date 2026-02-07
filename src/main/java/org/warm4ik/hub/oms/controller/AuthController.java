@@ -21,13 +21,13 @@ import org.warm4ik.hub.oms.service.AuthService;
 @RequestMapping("${end.point.auth}")
 public class AuthController {
 
-  private final AuthService authService;
+  private final AuthService authServiceImpl;
 
   @PostMapping("/register")
   public ResponseEntity<ApiResponse<UserDTO>> register(
       @RequestBody @Valid RegisterUserRequest request) {
 
-    ApiResponse<UserDTO> response = authService.register(request);
+    ApiResponse<UserDTO> response = authServiceImpl.register(request);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
@@ -36,7 +36,7 @@ public class AuthController {
   public ResponseEntity<ApiResponse<TokenDTO>> login(@RequestBody @Valid LoginRequest request) {
 
     ApiResponse<TokenDTO> response =
-        authService.login(request.getUsername(), request.getPassword());
+        authServiceImpl.login(request.getUsername(), request.getPassword());
 
     return ResponseEntity.ok(response);
   }
@@ -44,7 +44,7 @@ public class AuthController {
   @GetMapping("/me")
   public ResponseEntity<ApiResponse<UserDTO>> profile() {
 
-    ApiResponse<UserDTO> response = authService.profile();
+    ApiResponse<UserDTO> response = authServiceImpl.profile();
 
     return ResponseEntity.ok(response);
   }
