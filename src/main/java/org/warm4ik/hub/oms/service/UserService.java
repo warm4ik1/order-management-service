@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.warm4ik.hub.oms.mapper.UserMapper;
+import org.warm4ik.hub.oms.model.constants.ApiErrorMessage;
+import org.warm4ik.hub.oms.model.constants.ApiSuccessMessage;
 import org.warm4ik.hub.oms.model.dto.UserDTO;
 import org.warm4ik.hub.oms.model.exception.NotFoundException;
 import org.warm4ik.hub.oms.model.response.ApiResponse;
@@ -35,14 +37,14 @@ public class UserService {
                 users.getTotalPages()));
 
     return ApiResponse.createSuccessful(
-        "Все доступные пользователи успешно получены.", paginationResponse);
+        ApiSuccessMessage.ALL_USERS_FETCHED.getMessage(), paginationResponse);
   }
 
   @Transactional
   public void deleteUserById(UUID id) {
 
     if (!userRepository.existsById(id)) {
-      throw new NotFoundException("User с id " + id + " не найден и не может быть удалён.");
+      throw new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(id));
     }
 
     userRepository.deleteById(id);
