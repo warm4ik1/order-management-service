@@ -12,12 +12,15 @@ public enum ApiErrorMessage {
   ORDER_NOT_FOUND_BY_ID("Order with ID: %s was not found."),
   USERNAME_ALREADY_EXISTS("Username: %s already exists."),
   ORDER_ALREADY_COMPLETED("The order has already been completed! The status cannot be changed."),
+  ORDER_STATUS_UPDATE_NOT_ALLOWED("Order status update not allowed"),
 
   INVALID_TOKEN_SIGNATURE("Invalid token signature"),
   ERROR_DURING_JWT_PROCESSING("An unexpected error occurred during JWT processing"),
   TOKEN_EXPIRED("Token expired."),
   UNEXPECTED_ERROR_OCCURRED("An unexpected error occurred. Please try again later."),
-  INVALID_PRINCIPAL_TYPE("JWT authentication failed: expected CustomUserDetails.");
+  INVALID_PRINCIPAL_TYPE("JWT authentication failed: expected CustomUserDetails."),
+
+  ACCESS_FORBIDDEN("Access forbidden.");
 
   private final String message;
 
