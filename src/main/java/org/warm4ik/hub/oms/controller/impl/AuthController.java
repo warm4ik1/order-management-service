@@ -1,4 +1,4 @@
-package org.warm4ik.hub.oms.controller;
+package org.warm4ik.hub.oms.controller.impl;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,42 +9,46 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.warm4ik.hub.oms.controller.AuthApi;
 import org.warm4ik.hub.oms.model.dto.TokenDTO;
 import org.warm4ik.hub.oms.model.dto.UserDTO;
 import org.warm4ik.hub.oms.model.request.auth.LoginRequest;
 import org.warm4ik.hub.oms.model.request.user.RegisterUserRequest;
-import org.warm4ik.hub.oms.model.response.ApiResponse;
+import org.warm4ik.hub.oms.model.response.OmsResponse;
 import org.warm4ik.hub.oms.service.AuthService;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${end.point.auth}")
-public class AuthController {
+public class AuthController implements AuthApi {
 
   private final AuthService authServiceImpl;
 
   @PostMapping("/register")
-  public ResponseEntity<ApiResponse<UserDTO>> register(
+  @Override
+  public ResponseEntity<OmsResponse<UserDTO>> register(
       @RequestBody @Valid RegisterUserRequest request) {
 
-    ApiResponse<UserDTO> response = authServiceImpl.register(request);
+    OmsResponse<UserDTO> response = authServiceImpl.register(request);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   @PostMapping("/login")
-  public ResponseEntity<ApiResponse<TokenDTO>> login(@RequestBody @Valid LoginRequest request) {
+  @Override
+  public ResponseEntity<OmsResponse<TokenDTO>> login(@RequestBody @Valid LoginRequest request) {
 
-    ApiResponse<TokenDTO> response =
+    OmsResponse<TokenDTO> response =
         authServiceImpl.login(request.getUsername(), request.getPassword());
 
     return ResponseEntity.ok(response);
   }
-
+  
   @GetMapping("/me")
-  public ResponseEntity<ApiResponse<UserDTO>> profile() {
+  @Override
+  public ResponseEntity<OmsResponse<UserDTO>> profile() {
 
-    ApiResponse<UserDTO> response = authServiceImpl.profile();
+    OmsResponse<UserDTO> response = authServiceImpl.profile();
 
     return ResponseEntity.ok(response);
   }

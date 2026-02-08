@@ -17,7 +17,7 @@ import org.warm4ik.hub.oms.model.entity.User;
 import org.warm4ik.hub.oms.model.exception.DataExistException;
 import org.warm4ik.hub.oms.model.exception.NotFoundException;
 import org.warm4ik.hub.oms.model.request.user.RegisterUserRequest;
-import org.warm4ik.hub.oms.model.response.ApiResponse;
+import org.warm4ik.hub.oms.model.response.OmsResponse;
 import org.warm4ik.hub.oms.repository.UserRepository;
 import org.warm4ik.hub.oms.security.model.CustomUserDetails;
 import org.warm4ik.hub.oms.security.provider.JwtTokenProvider;
@@ -38,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
 
   @Transactional
   @Override
-  public ApiResponse<UserDTO> register(RegisterUserRequest request) {
+  public OmsResponse<UserDTO> register(RegisterUserRequest request) {
 
     if (userRepository.existsByUsername(request.getUsername())) {
       throw new DataExistException(
@@ -50,12 +50,12 @@ public class AuthServiceImpl implements AuthService {
     userRepository.save(user);
     UserDTO userDTO = userMapper.userToUserDTO(user);
 
-    return ApiResponse.createSuccessful(
+    return OmsResponse.createSuccessful(
         ApiSuccessMessage.REGISTRATION_COMPLETED.getMessage(), userDTO);
   }
 
   @Override
-  public ApiResponse<TokenDTO> login(String username, String password) {
+  public OmsResponse<TokenDTO> login(String username, String password) {
 
     Authentication auth =
         authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -66,14 +66,14 @@ public class AuthServiceImpl implements AuthService {
       throw new AuthenticationServiceException(ApiErrorMessage.INVALID_PRINCIPAL_TYPE.getMessage());
     }
 
-    return ApiResponse.createSuccessful(
+    return OmsResponse.createSuccessful(
         ApiSuccessMessage.LOGIN_SUCCEEDED.getMessage(),
         new TokenDTO(jwt.generateTokenFromPrincipal(userDetails)));
   }
 
   @Transactional(readOnly = true)
   @Override
-  public ApiResponse<UserDTO> profile() {
+  public OmsResponse<UserDTO> profile() {
 
     UUID id = SecurityUtils.currentUserId();
     UserDTO userDTO =
@@ -83,6 +83,6 @@ public class AuthServiceImpl implements AuthService {
             .orElseThrow(
                 () -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage()));
 
-    return ApiResponse.createSuccessful(ApiSuccessMessage.PROFILE_LOADED.getMessage(), userDTO);
+    return OmsResponse.createSuccessful(ApiSuccessMessage.PROFILE_LOADED.getMessage(), userDTO);
   }
 }

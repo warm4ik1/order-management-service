@@ -1,4 +1,4 @@
-package org.warm4ik.hub.oms.controller;
+package org.warm4ik.hub.oms.controller.impl;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.warm4ik.hub.oms.controller.OrderApi;
 import org.warm4ik.hub.oms.model.dto.OrderDTO;
 import org.warm4ik.hub.oms.model.request.order.CreateOrderRequest;
 import org.warm4ik.hub.oms.model.request.order.UpdateStatusOrderRequest;
-import org.warm4ik.hub.oms.model.response.ApiResponse;
+import org.warm4ik.hub.oms.model.response.OmsResponse;
 import org.warm4ik.hub.oms.model.response.PaginationResponse;
 import org.warm4ik.hub.oms.service.OrderService;
 
@@ -30,17 +31,18 @@ import java.util.UUID;
 @RestController
 @RequestMapping("${end.point.orders}")
 @RequiredArgsConstructor
-public class OrderController {
+public class OrderController implements OrderApi {
 
   private final OrderService orderServiceImpl;
 
   @GetMapping()
-  public ResponseEntity<ApiResponse<PaginationResponse<OrderDTO>>> getCurrentUserOrders(
+  @Override
+  public ResponseEntity<OmsResponse<PaginationResponse<OrderDTO>>> getCurrentUserOrders(
       @RequestParam(name = "page", defaultValue = "0") int page,
       @RequestParam(name = "limit", defaultValue = "10") int limit) {
 
     Pageable pageable = PageRequest.of(page, limit);
-    ApiResponse<PaginationResponse<OrderDTO>> response =
+    OmsResponse<PaginationResponse<OrderDTO>> response =
         orderServiceImpl.getCurrentUserOrders(pageable);
 
     return ResponseEntity.ok(response);
@@ -48,17 +50,19 @@ public class OrderController {
 
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<OrderDTO>> updateStatusOrderById(
+  @Override
+  public ResponseEntity<OmsResponse<OrderDTO>> updateStatusOrderById(
       @PathVariable(name = "id") UUID orderId,
       @RequestBody @Valid UpdateStatusOrderRequest request) {
 
-    ApiResponse<OrderDTO> response = orderServiceImpl.updateStatusOrderById(orderId, request);
+    OmsResponse<OrderDTO> response = orderServiceImpl.updateStatusOrderById(orderId, request);
 
     return ResponseEntity.ok(response);
   }
 
   @DeleteMapping("/{id}")
   @PreAuthorize("hasAnyRole('USER','ADMIN')")
+  @Override
   public ResponseEntity<Void> deleteOrderById(@PathVariable(name = "id") UUID orderId) {
 
     orderServiceImpl.deleteOrderById(orderId);
@@ -68,22 +72,24 @@ public class OrderController {
 
   @PostMapping()
   @PreAuthorize("hasAnyRole('USER','ADMIN')")
-  public ResponseEntity<ApiResponse<OrderDTO>> createOrder(
+  @Override
+  public ResponseEntity<OmsResponse<OrderDTO>> createOrder(
       @RequestBody @Valid CreateOrderRequest request) {
 
-    ApiResponse<OrderDTO> response = orderServiceImpl.createOrder(request);
+    OmsResponse<OrderDTO> response = orderServiceImpl.createOrder(request);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   @GetMapping("/all")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<PaginationResponse<OrderDTO>>> findAllOrders(
+  @Override
+  public ResponseEntity<OmsResponse<PaginationResponse<OrderDTO>>> findAllOrders(
       @RequestParam(name = "page", defaultValue = "0") int page,
       @RequestParam(name = "limit", defaultValue = "10") int limit) {
 
     Pageable pageable = PageRequest.of(page, limit);
-    ApiResponse<PaginationResponse<OrderDTO>> response = orderServiceImpl.findAllOrders(pageable);
+    OmsResponse<PaginationResponse<OrderDTO>> response = orderServiceImpl.findAllOrders(pageable);
 
     return ResponseEntity.ok(response);
   }

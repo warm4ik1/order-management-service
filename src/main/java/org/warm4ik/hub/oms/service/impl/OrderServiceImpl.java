@@ -17,7 +17,7 @@ import org.warm4ik.hub.oms.model.exception.BusinessConflictException;
 import org.warm4ik.hub.oms.model.exception.NotFoundException;
 import org.warm4ik.hub.oms.model.request.order.CreateOrderRequest;
 import org.warm4ik.hub.oms.model.request.order.UpdateStatusOrderRequest;
-import org.warm4ik.hub.oms.model.response.ApiResponse;
+import org.warm4ik.hub.oms.model.response.OmsResponse;
 import org.warm4ik.hub.oms.model.response.PaginationResponse;
 import org.warm4ik.hub.oms.repository.OrderRepository;
 import org.warm4ik.hub.oms.repository.UserRepository;
@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
   private final UserRepository userRepository;
 
   @Transactional(readOnly = true)
-  public ApiResponse<PaginationResponse<OrderDTO>> getCurrentUserOrders(Pageable pageable) {
+  public OmsResponse<PaginationResponse<OrderDTO>> getCurrentUserOrders(Pageable pageable) {
 
     UUID userId = SecurityUtils.currentUserId();
 
@@ -52,12 +52,12 @@ public class OrderServiceImpl implements OrderService {
                 orders.getTotalPages()
                 ));
 
-    return ApiResponse.createSuccessful(
+    return OmsResponse.createSuccessful(
         ApiSuccessMessage.USER_ORDERS_FETCHED.getMessage(), paginationResponse);
   }
 
   @Transactional
-  public ApiResponse<OrderDTO> updateStatusOrderById(
+  public OmsResponse<OrderDTO> updateStatusOrderById(
       UUID orderId, UpdateStatusOrderRequest request) {
 
     Order order =
@@ -85,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
     orderRepository.save(order);
     OrderDTO orderDTO = orderMapper.orderToOrderDTO(order);
 
-    return ApiResponse.createSuccessful(
+    return OmsResponse.createSuccessful(
         ApiSuccessMessage.ORDER_STATUS_UPDATED.getMessage(), orderDTO);
   }
 
@@ -107,7 +107,7 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Transactional
-  public ApiResponse<OrderDTO> createOrder(CreateOrderRequest request) {
+  public OmsResponse<OrderDTO> createOrder(CreateOrderRequest request) {
 
     UUID userId = SecurityUtils.currentUserId();
 
@@ -120,13 +120,13 @@ public class OrderServiceImpl implements OrderService {
 
     Order createdOrder = orderRepository.save(orderMapper.createOrder(request, user));
 
-    return ApiResponse.createSuccessful(
+    return OmsResponse.createSuccessful(
         ApiSuccessMessage.ORDER_CREATED.getMessage(createdOrder.getId()),
         orderMapper.orderToOrderDTO(createdOrder));
   }
 
   @Transactional(readOnly = true)
-  public ApiResponse<PaginationResponse<OrderDTO>> findAllOrders(Pageable pageable) {
+  public OmsResponse<PaginationResponse<OrderDTO>> findAllOrders(Pageable pageable) {
 
     Page<OrderDTO> orders = orderRepository.findAll(pageable).map(orderMapper::orderToOrderDTO);
     PaginationResponse<OrderDTO> paginationResponse =
@@ -139,7 +139,7 @@ public class OrderServiceImpl implements OrderService {
                 orders.getTotalPages()
                 ));
 
-    return ApiResponse.createSuccessful(
+    return OmsResponse.createSuccessful(
         ApiSuccessMessage.ALL_ORDERS_FETCHED.getMessage(), paginationResponse);
   }
 }

@@ -10,7 +10,7 @@ import org.warm4ik.hub.oms.model.constants.ApiErrorMessage;
 import org.warm4ik.hub.oms.model.constants.ApiSuccessMessage;
 import org.warm4ik.hub.oms.model.dto.UserDTO;
 import org.warm4ik.hub.oms.model.exception.NotFoundException;
-import org.warm4ik.hub.oms.model.response.ApiResponse;
+import org.warm4ik.hub.oms.model.response.OmsResponse;
 import org.warm4ik.hub.oms.model.response.PaginationResponse;
 import org.warm4ik.hub.oms.repository.UserRepository;
 import org.warm4ik.hub.oms.service.UserService;
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
 
-  public ApiResponse<PaginationResponse<UserDTO>> findAllUsers(Pageable pageable) {
+  public OmsResponse<PaginationResponse<UserDTO>> findAllUsers(Pageable pageable) {
 
     Page<UserDTO> users = userRepository.findAll(pageable).map(userMapper::userToUserDTO);
 
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
                 pageable.getPageNumber() + 1,
                 users.getTotalPages()));
 
-    return ApiResponse.createSuccessful(
+    return OmsResponse.createSuccessful(
         ApiSuccessMessage.ALL_USERS_FETCHED.getMessage(), paginationResponse);
   }
 
