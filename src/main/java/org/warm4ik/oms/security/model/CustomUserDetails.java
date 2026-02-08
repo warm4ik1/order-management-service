@@ -2,6 +2,7 @@ package org.warm4ik.oms.security.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Getter
 @NullMarked
 @RequiredArgsConstructor
+@Setter
 public class CustomUserDetails implements UserDetails {
 
   private final UUID id;

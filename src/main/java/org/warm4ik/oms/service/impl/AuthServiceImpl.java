@@ -81,8 +81,10 @@ public class AuthServiceImpl implements AuthService {
             .findById(id)
             .map(userMapper::userToUserDTO)
             .orElseThrow(
-                () -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage()));
+                () -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(id)));
 
     return OmsResponse.createSuccessful(ApiSuccessMessage.PROFILE_LOADED.getMessage(), userDTO);
   }
+
+
 }

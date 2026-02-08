@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -113,10 +114,8 @@ public class UserServiceTest {
         assertThrows(NotFoundException.class, () -> userService.deleteUserById(testUser.getId()));
 
     assertEquals(
-        ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(
-            testUser.getId()),
-        exception.getMessage());
+        ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(testUser.getId()), exception.getMessage());
 
-    verify(userRepository, times(0)).deleteById(testUser.getId());
+    verify(userRepository, never()).deleteById(testUser.getId());
   }
 }
