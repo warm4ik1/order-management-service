@@ -3,7 +3,6 @@ package org.warm4ik.hub.oms.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,8 +36,7 @@ public interface AuthApi {
 
   @Operation(
       summary = "Get current user profile",
-      description = "Returns profile of authenticated user",
-      security = @SecurityRequirement(name = "bearerAuth"))
+      description = "Returns profile of authenticated user")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Profile retrieved"),
     @ApiResponse(responseCode = "401", description = "Unauthorized"),
