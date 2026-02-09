@@ -1,26 +1,24 @@
 package org.warm4ik.oms.model.enums;
 
-import lombok.Getter;
-
-import java.util.Set;
-
-@Getter
 public enum OrderStatus {
   CREATED,
   IN_PROGRESS,
   COMPLETED;
 
-  private Set<OrderStatus> allowedTransitions;
-
-  static {
-    CREATED.allowedTransitions = Set.of(IN_PROGRESS, COMPLETED);
-    IN_PROGRESS.allowedTransitions = Set.of(COMPLETED);
-    COMPLETED.allowedTransitions = Set.of();
-  }
-
-  OrderStatus(){}
-
   public boolean canTransitionTo(OrderStatus newStatus) {
-    return this == newStatus || allowedTransitions.contains(newStatus);
+    if (newStatus == null) {
+      return false;
+    }
+    if (this == newStatus) {
+      return true;
+    }
+
+    return switch (this) {
+      case CREATED -> newStatus == IN_PROGRESS || newStatus == COMPLETED;
+
+      case IN_PROGRESS -> newStatus == COMPLETED;
+
+      case COMPLETED -> false;
+    };
   }
 }
