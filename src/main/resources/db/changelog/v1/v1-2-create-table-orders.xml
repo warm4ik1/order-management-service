@@ -36,7 +36,7 @@
                 onDelete="CASCADE"/>
     </changeSet>
 
-    <changeSet id="v1-6-add-unique-constraint-user_id" author="warm4ik">
+    <changeSet id="v1-6-add-not-null-constraint-user_id" author="warm4ik">
         <addNotNullConstraint tableName="orders" columnName="user_id" columnDataType="uuid"/>
     </changeSet>
 </databaseChangeLog>
