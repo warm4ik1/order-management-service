@@ -1,5 +1,9 @@
 package org.warm4ik.oms.unit.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,14 +35,6 @@ import org.warm4ik.oms.repository.OrderRepository;
 import org.warm4ik.oms.repository.UserRepository;
 import org.warm4ik.oms.security.utils.SecurityUtils;
 import org.warm4ik.oms.service.impl.OrderServiceImpl;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -65,28 +62,28 @@ public class OrderServiceTest {
     OrderDTO orderDTO = new OrderDTO();
     orderDTO.setId(orderId);
 
-    try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
+    try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
       utilities.when(SecurityUtils::currentUserId).thenReturn(userId);
 
-      when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-      when(orderMapper.createOrder(request, user)).thenReturn(order);
-      when(orderRepository.save(order)).thenReturn(order);
-      when(orderMapper.orderToOrderDTO(order)).thenReturn(orderDTO);
+      Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+      Mockito.when(orderMapper.createOrder(request, user)).thenReturn(order);
+      Mockito.when(orderRepository.save(order)).thenReturn(order);
+      Mockito.when(orderMapper.orderToOrderDTO(order)).thenReturn(orderDTO);
 
       OmsResponse<OrderDTO> response = orderService.createOrder(request);
 
-      assertNotNull(response);
-      assertTrue(response.isSuccess());
-      assertEquals(orderId, response.getPayload().getId());
+      Assertions.assertNotNull(response);
+      Assertions.assertTrue(response.isSuccess());
+      Assertions.assertEquals(orderId, response.getPayload().getId());
 
       ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
-      verify(orderRepository).save(orderCaptor.capture());
+      Mockito.verify(orderRepository).save(orderCaptor.capture());
       Order savedOrder = orderCaptor.getValue();
-      assertEquals(orderId, savedOrder.getId()); // Проверка переданного объекта
+      Assertions.assertEquals(orderId, savedOrder.getId()); // Проверка переданного объекта
 
-      verify(userRepository).findById(userId);
-      verify(orderMapper).createOrder(request, user);
-      verify(orderMapper).orderToOrderDTO(order);
+      Mockito.verify(userRepository).findById(userId);
+      Mockito.verify(orderMapper).createOrder(request, user);
+      Mockito.verify(orderMapper).orderToOrderDTO(order);
     }
   }
 
@@ -96,18 +93,19 @@ public class OrderServiceTest {
     UUID userId = UUID.randomUUID();
     CreateOrderRequest request = new CreateOrderRequest();
 
-    try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
+    try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
       utilities.when(SecurityUtils::currentUserId).thenReturn(userId);
 
-      when(userRepository.findById(userId)).thenReturn(Optional.empty());
+      Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
       NotFoundException exception =
-          assertThrows(NotFoundException.class, () -> orderService.createOrder(request));
+          Assertions.assertThrows(NotFoundException.class, () -> orderService.createOrder(request));
 
-      assertEquals(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId), exception.getMessage());
+      Assertions.assertEquals(
+          ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId), exception.getMessage());
 
-      verify(orderMapper, never()).createOrder(any(), any());
-      verify(orderRepository, never()).save(any());
+      Mockito.verify(orderMapper, Mockito.never()).createOrder(Mockito.any(), Mockito.any());
+      Mockito.verify(orderRepository, Mockito.never()).save(Mockito.any());
     }
   }
 
@@ -124,15 +122,15 @@ public class OrderServiceTest {
     ReflectionTestUtils.setField(order, "id", orderId);
     order.setUser(user);
 
-    try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
+    try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
       utilities.when(SecurityUtils::currentUserId).thenReturn(userId);
       utilities.when(SecurityUtils::isAdmin).thenReturn(false);
 
-      when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+      Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
       orderService.deleteOrderById(orderId);
 
-      verify(orderRepository).delete(order);
+      Mockito.verify(orderRepository).delete(order);
     }
   }
 
@@ -150,15 +148,16 @@ public class OrderServiceTest {
     ReflectionTestUtils.setField(order, "id", orderId);
     order.setUser(user);
 
-    try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
+    try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
       utilities.when(SecurityUtils::currentUserId).thenReturn(currentUserId);
       utilities.when(SecurityUtils::isAdmin).thenReturn(false);
 
-      when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+      Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-      assertThrows(AccessDeniedException.class, () -> orderService.deleteOrderById(orderId));
+      Assertions.assertThrows(
+          AccessDeniedException.class, () -> orderService.deleteOrderById(orderId));
 
-      verify(orderRepository, never()).delete(any());
+      Mockito.verify(orderRepository, Mockito.never()).delete(Mockito.any());
     }
   }
 
@@ -175,21 +174,21 @@ public class OrderServiceTest {
     List<Order> ordersList = List.of(order1, order2);
     Page<Order> orderPage = new PageImpl<>(ordersList, pageable, 10);
 
-    when(orderRepository.findAll(pageable)).thenReturn(orderPage);
-    when(orderMapper.orderToOrderDTO(order1)).thenReturn(new OrderDTO());
-    when(orderMapper.orderToOrderDTO(order2)).thenReturn(new OrderDTO());
+    Mockito.when(orderRepository.findAll(pageable)).thenReturn(orderPage);
+    Mockito.when(orderMapper.orderToOrderDTO(order1)).thenReturn(new OrderDTO());
+    Mockito.when(orderMapper.orderToOrderDTO(order2)).thenReturn(new OrderDTO());
 
     OmsResponse<PaginationResponse<OrderDTO>> response = orderService.findAllOrders(pageable);
 
-    assertNotNull(response);
-    assertTrue(response.isSuccess());
-    assertEquals(2, response.getPayload().getContent().size());
-    assertEquals(10, response.getPayload().getPagination().getTotal());
-    assertEquals(5, response.getPayload().getPagination().getPages());
+    Assertions.assertNotNull(response);
+    Assertions.assertTrue(response.isSuccess());
+    Assertions.assertEquals(2, response.getPayload().getContent().size());
+    Assertions.assertEquals(10, response.getPayload().getPagination().getTotal());
+    Assertions.assertEquals(5, response.getPayload().getPagination().getPages());
 
-    verify(orderRepository).findAll(pageable);
-    verify(orderMapper).orderToOrderDTO(order1);
-    verify(orderMapper).orderToOrderDTO(order2);
+    Mockito.verify(orderRepository).findAll(pageable);
+    Mockito.verify(orderMapper).orderToOrderDTO(order1);
+    Mockito.verify(orderMapper).orderToOrderDTO(order2);
   }
 
   @Test
@@ -206,25 +205,25 @@ public class OrderServiceTest {
     List<Order> ordersList = List.of(order1, order2);
     Page<Order> orderPage = new PageImpl<>(ordersList, pageable, 10);
 
-    try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
+    try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
       utilities.when(SecurityUtils::currentUserId).thenReturn(userId);
 
-      when(orderRepository.findAllByUserId(userId, pageable)).thenReturn(orderPage);
-      when(orderMapper.orderToOrderDTO(order1)).thenReturn(new OrderDTO());
-      when(orderMapper.orderToOrderDTO(order2)).thenReturn(new OrderDTO());
+      Mockito.when(orderRepository.findAllByUserId(userId, pageable)).thenReturn(orderPage);
+      Mockito.when(orderMapper.orderToOrderDTO(order1)).thenReturn(new OrderDTO());
+      Mockito.when(orderMapper.orderToOrderDTO(order2)).thenReturn(new OrderDTO());
 
       OmsResponse<PaginationResponse<OrderDTO>> response =
           orderService.getCurrentUserOrders(pageable);
 
-      assertNotNull(response);
-      assertTrue(response.isSuccess());
-      assertEquals(2, response.getPayload().getContent().size());
-      assertEquals(10, response.getPayload().getPagination().getTotal());
-      assertEquals(5, response.getPayload().getPagination().getPages());
+      Assertions.assertNotNull(response);
+      Assertions.assertTrue(response.isSuccess());
+      Assertions.assertEquals(2, response.getPayload().getContent().size());
+      Assertions.assertEquals(10, response.getPayload().getPagination().getTotal());
+      Assertions.assertEquals(5, response.getPayload().getPagination().getPages());
 
-      verify(orderRepository).findAllByUserId(userId, pageable);
-      verify(orderMapper).orderToOrderDTO(order1);
-      verify(orderMapper).orderToOrderDTO(order2);
+      Mockito.verify(orderRepository).findAllByUserId(userId, pageable);
+      Mockito.verify(orderMapper).orderToOrderDTO(order1);
+      Mockito.verify(orderMapper).orderToOrderDTO(order2);
     }
   }
 
@@ -243,20 +242,21 @@ public class OrderServiceTest {
     OrderDTO orderDTO = new OrderDTO();
     ReflectionTestUtils.setField(orderDTO, "id", orderId);
 
-    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-    when(orderMapper.orderToOrderDTO(order)).thenReturn(orderDTO);
+    Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    Mockito.when(orderMapper.orderToOrderDTO(order)).thenReturn(orderDTO);
 
     OmsResponse<OrderDTO> response = orderService.updateStatusOrderById(orderId, request);
 
-    assertNotNull(response);
-    assertTrue(response.isSuccess());
-    assertEquals(orderDTO, response.getPayload());
+    Assertions.assertNotNull(response);
+    Assertions.assertTrue(response.isSuccess());
+    Assertions.assertEquals(orderDTO, response.getPayload());
 
-    assertEquals(OrderStatus.IN_PROGRESS, order.getStatus(), "Order status should be updated");
+    Assertions.assertEquals(
+        OrderStatus.IN_PROGRESS, order.getStatus(), "Order status should be updated");
 
-    verify(orderRepository).findById(orderId);
-    verify(orderRepository).save(order);
-    verify(orderMapper).orderToOrderDTO(order);
+    Mockito.verify(orderRepository).findById(orderId);
+    Mockito.verify(orderRepository).save(order);
+    Mockito.verify(orderMapper).orderToOrderDTO(order);
   }
 
   @Test
@@ -267,17 +267,18 @@ public class OrderServiceTest {
     UpdateStatusOrderRequest request = new UpdateStatusOrderRequest();
     request.setStatus(OrderStatus.IN_PROGRESS);
 
-    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+    Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
     NotFoundException exception =
-        assertThrows(
+        Assertions.assertThrows(
             NotFoundException.class, () -> orderService.updateStatusOrderById(orderId, request));
 
-    assertEquals(ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage(orderId), exception.getMessage());
+    Assertions.assertEquals(
+        ApiErrorMessage.ORDER_NOT_FOUND_BY_ID.getMessage(orderId), exception.getMessage());
 
-    verify(orderRepository).findById(orderId);
-    verify(orderRepository, never()).save(any());
-    verify(orderMapper, never()).orderToOrderDTO(any());
+    Mockito.verify(orderRepository).findById(orderId);
+    Mockito.verify(orderRepository, Mockito.never()).save(Mockito.any());
+    Mockito.verify(orderMapper, Mockito.never()).orderToOrderDTO(Mockito.any());
   }
 
   @Test
@@ -292,21 +293,21 @@ public class OrderServiceTest {
     UpdateStatusOrderRequest request = new UpdateStatusOrderRequest();
     request.setStatus(OrderStatus.IN_PROGRESS);
 
-    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+    Mockito.when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
     BusinessConflictException exception =
-        assertThrows(
+        Assertions.assertThrows(
             BusinessConflictException.class,
             () -> orderService.updateStatusOrderById(orderId, request));
 
-    assertTrue(
+    Assertions.assertTrue(
         exception
             .getMessage()
             .contains(ApiErrorMessage.ORDER_STATUS_UPDATE_NOT_ALLOWED.getMessage()),
         "Order status update not allowed.");
 
-    verify(orderRepository).findById(orderId);
-    verify(orderRepository, never()).save(any());
-    verify(orderMapper, never()).orderToOrderDTO(any());
+    Mockito.verify(orderRepository).findById(orderId);
+    Mockito.verify(orderRepository, Mockito.never()).save(Mockito.any());
+    Mockito.verify(orderMapper, Mockito.never()).orderToOrderDTO(Mockito.any());
   }
 }

@@ -1,11 +1,13 @@
 package org.warm4ik.oms.unit.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,9 +27,6 @@ import org.warm4ik.oms.service.impl.UserServiceImpl;
 
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -66,50 +65,52 @@ public class UserServiceTest {
 
     Page<User> userPage = new PageImpl<>(List.of(testUser), pageable, 1);
 
-    when(userRepository.findAll(pageable)).thenReturn(userPage);
-    when(userMapper.userToUserDTO(testUser)).thenReturn(testUserDTO);
+    Mockito.when(userRepository.findAll(pageable)).thenReturn(userPage);
+    Mockito.when(userMapper.userToUserDTO(testUser)).thenReturn(testUserDTO);
 
     OmsResponse<PaginationResponse<UserDTO>> response = userService.findAllUsers(pageable);
 
-    assertNotNull(response);
-    assertTrue(response.isSuccess());
+    Assertions.assertNotNull(response);
+    Assertions.assertTrue(response.isSuccess());
 
     PaginationResponse<UserDTO> payload = response.getPayload();
-    assertNotNull(payload);
+    Assertions.assertNotNull(payload);
 
-    assertEquals(1, payload.getContent().size());
-    assertEquals(testUserDTO.getUsername(), payload.getContent().getFirst().getUsername());
+    Assertions.assertEquals(1, payload.getContent().size());
+    Assertions.assertEquals(
+        testUserDTO.getUsername(), payload.getContent().getFirst().getUsername());
 
     PaginationResponse.Pagination pagination = payload.getPagination();
-    assertNotNull(pagination);
+    Assertions.assertNotNull(pagination);
 
-    assertEquals(1, pagination.getTotal());
-    assertEquals(10, pagination.getLimit());
-    assertEquals(1, pagination.getPage()); // pageNumber + 1
-    assertEquals(1, pagination.getPages());
+    Assertions.assertEquals(1, pagination.getTotal());
+    Assertions.assertEquals(10, pagination.getLimit());
+    Assertions.assertEquals(1, pagination.getPage()); // pageNumber + 1
+    Assertions.assertEquals(1, pagination.getPages());
   }
 
   @Test
   void shouldReturnVoidWhenDeleteUserById() {
 
-    when(userRepository.existsById(testUser.getId())).thenReturn(true);
+    Mockito.when(userRepository.existsById(testUser.getId())).thenReturn(true);
 
     userService.deleteUserById(testUser.getId());
 
-    verify(userRepository, times(1)).deleteById(testUser.getId());
+    Mockito.verify(userRepository, Mockito.times(1)).deleteById(testUser.getId());
   }
 
   @Test
   void shouldThrowNotFoundExceptionWhenDeleteUserById() {
 
-    when(userRepository.existsById(testUser.getId())).thenReturn(false);
+    Mockito.when(userRepository.existsById(testUser.getId())).thenReturn(false);
 
     NotFoundException exception =
-        assertThrows(NotFoundException.class, () -> userService.deleteUserById(testUser.getId()));
+        Assertions.assertThrows(
+            NotFoundException.class, () -> userService.deleteUserById(testUser.getId()));
 
-    assertEquals(
+    Assertions.assertEquals(
         ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(testUser.getId()), exception.getMessage());
 
-    verify(userRepository, never()).deleteById(testUser.getId());
+    Mockito.verify(userRepository, Mockito.never()).deleteById(testUser.getId());
   }
 }

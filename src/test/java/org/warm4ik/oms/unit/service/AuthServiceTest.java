@@ -8,7 +8,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,10 +35,6 @@ import org.warm4ik.oms.service.impl.AuthServiceImpl;
 
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -82,29 +80,29 @@ public class AuthServiceTest {
     newUser.setUsername(request.getUsername());
     newUser.setPassword(request.getPassword());
 
-    when(userRepository.existsByUsername(request.getUsername())).thenReturn(false);
-    when(userMapper.createUser(request)).thenReturn(newUser);
-    when(passwordEncoder.encode(rawPassword)).thenReturn(encodedPassword);
-    when(userRepository.save(any(User.class))).thenReturn(newUser);
-    when(userMapper.userToUserDTO(any(User.class))).thenReturn(testUserDTO);
+    Mockito.when(userRepository.existsByUsername(request.getUsername())).thenReturn(false);
+    Mockito.when(userMapper.createUser(request)).thenReturn(newUser);
+    Mockito.when(passwordEncoder.encode(rawPassword)).thenReturn(encodedPassword);
+    Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(newUser);
+    Mockito.when(userMapper.userToUserDTO(Mockito.any(User.class))).thenReturn(testUserDTO);
 
     OmsResponse<UserDTO> response = authService.register(request);
 
-    assertEquals(
+    Assertions.assertEquals(
         testUserDTO.getUsername(),
         response.getPayload().getUsername(),
         "Username in DTO should match");
 
-    verify(passwordEncoder, times(1)).encode(rawPassword);
-    verify(userMapper, times(1)).createUser(request);
-    verify(userMapper, times(1)).userToUserDTO(any(User.class));
+    Mockito.verify(passwordEncoder, Mockito.times(1)).encode(rawPassword);
+    Mockito.verify(userMapper, Mockito.times(1)).createUser(request);
+    Mockito.verify(userMapper, Mockito.times(1)).userToUserDTO(Mockito.any(User.class));
 
     ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-    verify(userRepository).save(userCaptor.capture());
+    Mockito.verify(userRepository).save(userCaptor.capture());
     User savedUser = userCaptor.getValue();
-    assertEquals(
+    Assertions.assertEquals(
         encodedPassword, savedUser.getPassword(), "Saved user should have encoded password");
-    assertEquals(
+    Assertions.assertEquals(
         request.getUsername(), savedUser.getUsername(), "Saved user should have correct username");
   }
 
@@ -113,19 +111,19 @@ public class AuthServiceTest {
 
     RegisterUserRequest request = new RegisterUserRequest("newUser", "rawPassword");
 
-    when(userRepository.existsByUsername(request.getUsername())).thenReturn(true);
+    Mockito.when(userRepository.existsByUsername(request.getUsername())).thenReturn(true);
 
     DataExistException exception =
-        assertThrows(DataExistException.class, () -> authService.register(request));
+        Assertions.assertThrows(DataExistException.class, () -> authService.register(request));
 
-    assertEquals(
+    Assertions.assertEquals(
         ApiErrorMessage.USERNAME_ALREADY_EXISTS.getMessage(request.getUsername()),
         exception.getMessage());
 
-    verify(passwordEncoder, never()).encode(anyString());
-    verify(userMapper, never()).createUser(any());
-    verify(userMapper, never()).userToUserDTO(any());
-    verify(userRepository, never()).save(any());
+    Mockito.verify(passwordEncoder, Mockito.never()).encode(Mockito.anyString());
+    Mockito.verify(userMapper, Mockito.never()).createUser(Mockito.any());
+    Mockito.verify(userMapper, Mockito.never()).userToUserDTO(Mockito.any());
+    Mockito.verify(userRepository, Mockito.never()).save(Mockito.any());
   }
 
   @Test
@@ -138,22 +136,22 @@ public class AuthServiceTest {
     userDTO.setId(userId);
     userDTO.setUsername("testUser");
 
-    try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
+    try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
 
       utilities.when(SecurityUtils::currentUserId).thenReturn(userId);
 
-      when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-      when(userMapper.userToUserDTO(user)).thenReturn(userDTO);
+      Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+      Mockito.when(userMapper.userToUserDTO(user)).thenReturn(userDTO);
 
       OmsResponse<UserDTO> response = authService.profile();
 
-      assertNotNull(response);
-      assertTrue(response.isSuccess());
-      assertEquals(userDTO.getUsername(), response.getPayload().getUsername());
-      assertEquals(userId, response.getPayload().getId());
+      Assertions.assertNotNull(response);
+      Assertions.assertTrue(response.isSuccess());
+      Assertions.assertEquals(userDTO.getUsername(), response.getPayload().getUsername());
+      Assertions.assertEquals(userId, response.getPayload().getId());
 
-      verify(userRepository).findById(userId);
-      verify(userMapper).userToUserDTO(user);
+      Mockito.verify(userRepository).findById(userId);
+      Mockito.verify(userMapper).userToUserDTO(user);
     }
   }
 
@@ -162,17 +160,18 @@ public class AuthServiceTest {
 
     UUID userId = UUID.randomUUID();
 
-    try (MockedStatic<SecurityUtils> utilities = mockStatic(SecurityUtils.class)) {
+    try (MockedStatic<SecurityUtils> utilities = Mockito.mockStatic(SecurityUtils.class)) {
       utilities.when(SecurityUtils::currentUserId).thenReturn(userId);
 
-      when(userRepository.findById(userId)).thenReturn(Optional.empty());
+      Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
       NotFoundException exception =
-          assertThrows(NotFoundException.class, () -> authService.profile());
+          Assertions.assertThrows(NotFoundException.class, () -> authService.profile());
 
-      assertEquals(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId), exception.getMessage());
+      Assertions.assertEquals(
+          ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId), exception.getMessage());
 
-      verify(userMapper, never()).userToUserDTO(any());
+      Mockito.verify(userMapper, Mockito.never()).userToUserDTO(Mockito.any());
     }
   }
 
@@ -187,27 +186,28 @@ public class AuthServiceTest {
 
     CustomUserDetails userDetails = CustomUserDetails.fromJwt(userId, username, role);
 
-    Authentication auth = mock(Authentication.class);
-    when(auth.getPrincipal()).thenReturn(userDetails);
+    Authentication auth = Mockito.mock(Authentication.class);
+    Mockito.when(auth.getPrincipal()).thenReturn(userDetails);
 
-    when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
-    when(jwt.generateTokenFromPrincipal(userDetails)).thenReturn(token);
+    Mockito.when(authManager.authenticate(Mockito.any(UsernamePasswordAuthenticationToken.class)))
+        .thenReturn(auth);
+    Mockito.when(jwt.generateTokenFromPrincipal(userDetails)).thenReturn(token);
 
     OmsResponse<TokenDTO> response = authService.login(username, password);
 
-    assertNotNull(response);
-    assertTrue(response.isSuccess());
-    assertEquals(token, response.getPayload().accessToken());
+    Assertions.assertNotNull(response);
+    Assertions.assertTrue(response.isSuccess());
+    Assertions.assertEquals(token, response.getPayload().accessToken());
 
     ArgumentCaptor<UsernamePasswordAuthenticationToken> authCaptor =
         ArgumentCaptor.forClass(UsernamePasswordAuthenticationToken.class);
-    verify(authManager).authenticate(authCaptor.capture());
+    Mockito.verify(authManager).authenticate(authCaptor.capture());
 
     UsernamePasswordAuthenticationToken captured = authCaptor.getValue();
-    assertEquals(username, captured.getPrincipal());
-    assertEquals(password, captured.getCredentials());
+    Assertions.assertEquals(username, captured.getPrincipal());
+    Assertions.assertEquals(password, captured.getCredentials());
 
-    verify(jwt).generateTokenFromPrincipal(userDetails);
+    Mockito.verify(jwt).generateTokenFromPrincipal(userDetails);
   }
 
   @Test
@@ -216,17 +216,19 @@ public class AuthServiceTest {
     String username = "testUser";
     String password = "password123";
 
-    Authentication auth = mock(Authentication.class);
-    when(auth.getPrincipal()).thenReturn("NotACustomUserDetails"); // некорректный тип
+    Authentication auth = Mockito.mock(Authentication.class);
+    Mockito.when(auth.getPrincipal()).thenReturn("NotACustomUserDetails"); // некорректный тип
 
-    when(authManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
+    Mockito.when(authManager.authenticate(Mockito.any(UsernamePasswordAuthenticationToken.class)))
+        .thenReturn(auth);
 
     AuthenticationServiceException exception =
-        assertThrows(
+        Assertions.assertThrows(
             AuthenticationServiceException.class, () -> authService.login(username, password));
 
-    assertEquals(ApiErrorMessage.INVALID_PRINCIPAL_TYPE.getMessage(), exception.getMessage());
+    Assertions.assertEquals(
+        ApiErrorMessage.INVALID_PRINCIPAL_TYPE.getMessage(), exception.getMessage());
 
-    verify(jwt, never()).generateTokenFromPrincipal(any());
+    Mockito.verify(jwt, Mockito.never()).generateTokenFromPrincipal(Mockito.any());
   }
 }
