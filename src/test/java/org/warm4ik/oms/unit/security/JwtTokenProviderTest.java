@@ -1,6 +1,7 @@
 package org.warm4ik.oms.unit.security;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -26,6 +27,7 @@ class JwtTokenProviderTest {
   }
 
   @Test
+  @DisplayName("Должен сгенерировать валидный токен и извлечь из него все claims")
   void shouldGenerateValidTokenAndExtractAllClaims() {
 
     CustomUserDetails principal = createTestPrincipal();
@@ -39,6 +41,7 @@ class JwtTokenProviderTest {
   }
 
   @Test
+  @DisplayName("Должен корректно извлекать userId, username и роль из токена")
   void shouldExtractAllClaimsFromToken() {
 
     UUID userId = UUID.randomUUID();
@@ -54,6 +57,7 @@ class JwtTokenProviderTest {
   }
 
   @Test
+  @DisplayName("Должен вернуть false для просроченного токена")
   void shouldReturnFalseForExpiredToken() {
 
     JwtTokenProvider provider = new JwtTokenProvider(SECRET, 0);
@@ -65,6 +69,7 @@ class JwtTokenProviderTest {
   }
 
   @Test
+  @DisplayName("Должен работать со всеми ролями пользователей (USER, ADMIN)")
   void shouldWorkWithAllUserRoles() {
 
     for (UserRole role : UserRole.values()) {
@@ -89,6 +94,7 @@ class JwtTokenProviderTest {
         "header.payload.",
         "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0In0.bad-signature"
       })
+  @DisplayName("Должен возвращать false для невалидных форматов токена")
   void shouldReturnFalseForInvalidTokenFormats(String invalidToken) {
     assertFalse(jwtTokenProvider.validateToken(invalidToken));
   }

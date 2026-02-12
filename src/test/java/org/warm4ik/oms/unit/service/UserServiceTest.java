@@ -2,6 +2,7 @@ package org.warm4ik.oms.unit.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +60,7 @@ public class UserServiceTest {
   }
 
   @Test
+  @DisplayName("Получение всех пользователей: пагинированный список пользователей")
   void shouldReturnUsersDTOWhenGetAllUsers() {
 
     Pageable pageable = PageRequest.of(0, 10);
@@ -90,6 +92,7 @@ public class UserServiceTest {
   }
 
   @Test
+  @DisplayName("Удаление пользователя: успешное удаление по ID")
   void shouldReturnVoidWhenDeleteUserById() {
 
     Mockito.when(userRepository.existsById(testUser.getId())).thenReturn(true);
@@ -100,6 +103,7 @@ public class UserServiceTest {
   }
 
   @Test
+  @DisplayName("Удаление пользователя: ошибка если пользователь не найден (NotFoundException)")
   void shouldThrowNotFoundExceptionWhenDeleteUserById() {
 
     Mockito.when(userRepository.existsById(testUser.getId())).thenReturn(false);

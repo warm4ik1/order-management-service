@@ -1,6 +1,7 @@
 package org.warm4ik.oms.unit.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,6 +70,7 @@ public class AuthServiceTest {
   }
 
   @Test
+  @DisplayName("Регистрация: успешное создание пользователя, возврат UserDTO")
   void shouldReturnUserDTOWhenRegister() {
 
     String rawPassword = "password123";
@@ -107,6 +109,7 @@ public class AuthServiceTest {
   }
 
   @Test
+  @DisplayName("Регистрация: ошибка если username уже занят (DataExistException)")
   void shouldThrowDataExistExceptionWhenRegister() {
 
     RegisterUserRequest request = new RegisterUserRequest("newUser", "rawPassword");
@@ -127,6 +130,7 @@ public class AuthServiceTest {
   }
 
   @Test
+  @DisplayName("Профиль: успешное получение данных пользователя по ID из контекста")
   void shouldReturnUserDTOWhenProfileFound() {
 
     UUID userId = UUID.randomUUID();
@@ -156,6 +160,7 @@ public class AuthServiceTest {
   }
 
   @Test
+  @DisplayName("Профиль: ошибка если пользователь не найден по ID (NotFoundException)")
   void shouldThrowNotFoundExceptionWhenProfileNotFound() {
 
     UUID userId = UUID.randomUUID();
@@ -176,6 +181,7 @@ public class AuthServiceTest {
   }
 
   @Test
+  @DisplayName("Логин: успешная аутентификация, возврат JWT токена")
   void shouldReturnTokenDTOWhenLoginSuccessful() {
 
     UUID userId = UUID.randomUUID();
@@ -211,6 +217,7 @@ public class AuthServiceTest {
   }
 
   @Test
+  @DisplayName("Логин: ошибка при некорректном типе Principal (AuthenticationServiceException)")
   void shouldThrowAuthenticationServiceExceptionWhenPrincipalInvalid() {
 
     String username = "testUser";

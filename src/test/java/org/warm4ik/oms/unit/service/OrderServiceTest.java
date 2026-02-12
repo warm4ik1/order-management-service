@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +48,7 @@ public class OrderServiceTest {
   @InjectMocks private OrderServiceImpl orderService;
 
   @Test
+  @DisplayName("Создание заказа: успешное создание, возврат OrderDTO")
   void shouldCreateOrderSuccessfullyWhenUserExists() {
 
     UUID userId = UUID.randomUUID();
@@ -88,6 +90,7 @@ public class OrderServiceTest {
   }
 
   @Test
+  @DisplayName("Создание заказа: ошибка если пользователь не найден (NotFoundException)")
   void shouldThrowNotFoundExceptionWhenUserDoesNotExistOnCreateOrder() {
 
     UUID userId = UUID.randomUUID();
@@ -110,6 +113,7 @@ public class OrderServiceTest {
   }
 
   @Test
+  @DisplayName("Удаление заказа: успешно когда текущий пользователь - владелец")
   void shouldDeleteOrderSuccessfullyWhenCurrentUserIsOwner() {
 
     UUID userId = UUID.randomUUID();
@@ -135,6 +139,8 @@ public class OrderServiceTest {
   }
 
   @Test
+  @DisplayName(
+      "Удаление заказа: ошибка доступа если не владелец и не админ (AccessDeniedException)")
   void shouldThrowAccessDeniedExceptionWhenUserIsNotOwnerAndNotAdmin() {
 
     UUID orderId = UUID.randomUUID();
@@ -162,6 +168,7 @@ public class OrderServiceTest {
   }
 
   @Test
+  @DisplayName("Получение всех заказов: пагинированный список всех заказов")
   void shouldReturnAllOrdersWithPagination() {
 
     Pageable pageable = PageRequest.of(0, 2);
@@ -192,6 +199,7 @@ public class OrderServiceTest {
   }
 
   @Test
+  @DisplayName("Получение заказов текущего пользователя: пагинированный список")
   void shouldReturnCurrentUserOrdersWithPagination() {
 
     UUID userId = UUID.randomUUID();
@@ -228,6 +236,7 @@ public class OrderServiceTest {
   }
 
   @Test
+  @DisplayName("Обновление статуса заказа: успешное обновление")
   void shouldUpdateOrderStatusSuccessfully() {
 
     UUID orderId = UUID.randomUUID();
@@ -260,6 +269,7 @@ public class OrderServiceTest {
   }
 
   @Test
+  @DisplayName("Обновление статуса заказа: ошибка если заказ не найден (NotFoundException)")
   void shouldThrowNotFoundExceptionWhenOrderNotFound() {
 
     UUID orderId = UUID.randomUUID();
@@ -282,6 +292,8 @@ public class OrderServiceTest {
   }
 
   @Test
+  @DisplayName(
+      "Обновление статуса заказа: ошибка при недопустимом переходе статуса (BusinessConflictException)")
   void shouldThrowBusinessConflictExceptionWhenStatusTransitionNotAllowed() {
 
     UUID orderId = UUID.randomUUID();
