@@ -2,7 +2,6 @@ package org.warm4ik.oms.controller.impl;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -27,7 +26,6 @@ import org.warm4ik.oms.service.OrderService;
 
 import java.util.UUID;
 
-@Slf4j
 @RestController
 @RequestMapping("${end.point.orders}")
 @RequiredArgsConstructor

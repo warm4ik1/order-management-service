@@ -1,7 +1,6 @@
 package org.warm4ik.oms.controller.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,6 @@ import org.warm4ik.oms.service.UserService;
 
 import java.util.UUID;
 
-@Slf4j
 @RestController
 @RequestMapping("${end.point.users}")
 @RequiredArgsConstructor
