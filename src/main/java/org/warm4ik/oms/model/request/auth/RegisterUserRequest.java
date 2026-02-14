@@ -1,4 +1,4 @@
-package org.warm4ik.oms.model.request.user;
+package org.warm4ik.oms.model.request.auth;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -6,10 +6,12 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.warm4ik.oms.validation.annotation.PasswordMatches;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@PasswordMatches
 public class RegisterUserRequest {
 
   @NotBlank(message = "Username is required")
@@ -27,4 +29,12 @@ public class RegisterUserRequest {
       example = "password123",
       requiredMode = Schema.RequiredMode.REQUIRED)
   private String password;
+
+  @NotBlank(message = "Confirm password is required")
+  @Size(min = 5, max = 50, message = "Password must be between 5 and 50 characters")
+  @Schema(
+          description = "Confirm password (from 5 to 50 symbols)",
+          example = "password123",
+          requiredMode = Schema.RequiredMode.REQUIRED)
+  private String confirmPassword;
 }

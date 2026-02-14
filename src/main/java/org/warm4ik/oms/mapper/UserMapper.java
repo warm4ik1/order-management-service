@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.warm4ik.oms.model.dto.UserDTO;
 import org.warm4ik.oms.model.entity.User;
-import org.warm4ik.oms.model.request.user.RegisterUserRequest;
+import org.warm4ik.oms.model.request.auth.RegisterUserRequest;
 
 @Mapper(
     componentModel = "spring",

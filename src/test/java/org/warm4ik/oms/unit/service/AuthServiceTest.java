@@ -1,5 +1,8 @@
 package org.warm4ik.oms.unit.service;
 
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,16 +28,13 @@ import org.warm4ik.oms.model.entity.User;
 import org.warm4ik.oms.model.enums.UserRole;
 import org.warm4ik.oms.model.exception.DataExistException;
 import org.warm4ik.oms.model.exception.NotFoundException;
-import org.warm4ik.oms.model.request.user.RegisterUserRequest;
+import org.warm4ik.oms.model.request.auth.RegisterUserRequest;
 import org.warm4ik.oms.model.response.OmsResponse;
 import org.warm4ik.oms.repository.UserRepository;
 import org.warm4ik.oms.security.model.CustomUserDetails;
 import org.warm4ik.oms.security.provider.JwtTokenProvider;
 import org.warm4ik.oms.security.utils.SecurityUtils;
 import org.warm4ik.oms.service.impl.AuthServiceImpl;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -76,7 +75,7 @@ public class AuthServiceTest {
     String rawPassword = "password123";
     String encodedPassword = "encodedPassword";
 
-    RegisterUserRequest request = new RegisterUserRequest("newUser", rawPassword);
+    RegisterUserRequest request = new RegisterUserRequest("newUser", rawPassword, rawPassword);
 
     User newUser = new User();
     newUser.setUsername(request.getUsername());
@@ -112,7 +111,7 @@ public class AuthServiceTest {
   @DisplayName("Регистрация: ошибка если username уже занят (DataExistException)")
   void shouldThrowDataExistExceptionWhenRegister() {
 
-    RegisterUserRequest request = new RegisterUserRequest("newUser", "rawPassword");
+    RegisterUserRequest request = new RegisterUserRequest("newUser", "rawPassword", "rawPassword");
 
     Mockito.when(userRepository.existsByUsername(request.getUsername())).thenReturn(true);
 

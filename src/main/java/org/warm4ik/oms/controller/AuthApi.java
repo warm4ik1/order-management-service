@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.warm4ik.oms.model.dto.TokenDTO;
 import org.warm4ik.oms.model.dto.UserDTO;
 import org.warm4ik.oms.model.request.auth.LoginRequest;
-import org.warm4ik.oms.model.request.user.RegisterUserRequest;
+import org.warm4ik.oms.model.request.auth.RegisterUserRequest;
 import org.warm4ik.oms.model.response.OmsResponse;
 
 public interface AuthApi {

@@ -16,7 +16,7 @@ import org.warm4ik.oms.model.dto.UserDTO;
 import org.warm4ik.oms.model.entity.User;
 import org.warm4ik.oms.model.exception.DataExistException;
 import org.warm4ik.oms.model.exception.NotFoundException;
-import org.warm4ik.oms.model.request.user.RegisterUserRequest;
+import org.warm4ik.oms.model.request.auth.RegisterUserRequest;
 import org.warm4ik.oms.model.response.OmsResponse;
 import org.warm4ik.oms.repository.UserRepository;
 import org.warm4ik.oms.security.model.CustomUserDetails;

@@ -25,14 +25,14 @@ import java.util.Objects;
 @ControllerAdvice
 public class CommonControllerAdvice {
 
-  @ExceptionHandler
+  @ExceptionHandler(NotFoundException.class)
   @ResponseBody
   protected ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
     logStackTrace(ex);
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
   }
 
-  @ExceptionHandler
+  @ExceptionHandler(BusinessConflictException.class)
   @ResponseBody
   protected ResponseEntity<String> handleBusinessConflictException(BusinessConflictException ex) {
     logStackTrace(ex);
