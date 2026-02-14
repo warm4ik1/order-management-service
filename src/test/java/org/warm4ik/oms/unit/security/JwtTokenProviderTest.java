@@ -18,12 +18,13 @@ class JwtTokenProviderTest {
   private static final String SECRET =
       "aMpXaslkOcN07s1hjpEFR61xOM4aAlLqFSsavyCKWncok1QMYDyFbJSIN0GaZxgRs3aHCKvyvcAKFO05RoVhYx";
   private static final long EXPIRATION = 60_000;
+  private static final long REFRESH_EXPIRATION = 600_000;
 
   private JwtTokenProvider jwtTokenProvider;
 
   @BeforeEach
   void setUp() {
-    jwtTokenProvider = new JwtTokenProvider(SECRET, EXPIRATION);
+    jwtTokenProvider = new JwtTokenProvider(SECRET, EXPIRATION, REFRESH_EXPIRATION);
   }
 
   @Test
@@ -32,7 +33,7 @@ class JwtTokenProviderTest {
 
     CustomUserDetails principal = createTestPrincipal();
 
-    String token = jwtTokenProvider.generateTokenFromPrincipal(principal);
+    String token = jwtTokenProvider.generateAccessToken(principal);
 
     assertTrue(jwtTokenProvider.validateToken(token));
     assertEquals(principal.getId(), jwtTokenProvider.getUserId(token));
@@ -49,7 +50,7 @@ class JwtTokenProviderTest {
     UserRole role = UserRole.ADMIN;
 
     CustomUserDetails principal = CustomUserDetails.fromJwt(userId, username, role);
-    String token = jwtTokenProvider.generateTokenFromPrincipal(principal);
+    String token = jwtTokenProvider.generateAccessToken(principal);
 
     assertEquals(userId, jwtTokenProvider.getUserId(token));
     assertEquals(username, jwtTokenProvider.getUsername(token));
@@ -60,10 +61,10 @@ class JwtTokenProviderTest {
   @DisplayName("Должен вернуть false для просроченного токена")
   void shouldReturnFalseForExpiredToken() {
 
-    JwtTokenProvider provider = new JwtTokenProvider(SECRET, 0);
+    JwtTokenProvider provider = new JwtTokenProvider(SECRET, 0, REFRESH_EXPIRATION);
 
     CustomUserDetails principal = createTestPrincipal();
-    String token = provider.generateTokenFromPrincipal(principal);
+    String token = provider.generateAccessToken(principal);
 
     assertFalse(provider.validateToken(token));
   }
@@ -76,7 +77,7 @@ class JwtTokenProviderTest {
       CustomUserDetails principal =
           CustomUserDetails.fromJwt(UUID.randomUUID(), "username1234", role);
 
-      String token = jwtTokenProvider.generateTokenFromPrincipal(principal);
+      String token = jwtTokenProvider.generateAccessToken(principal);
 
       assertTrue(jwtTokenProvider.validateToken(token));
       assertEquals(role, jwtTokenProvider.getRole(token));
@@ -97,6 +98,23 @@ class JwtTokenProviderTest {
   @DisplayName("Должен возвращать false для невалидных форматов токена")
   void shouldReturnFalseForInvalidTokenFormats(String invalidToken) {
     assertFalse(jwtTokenProvider.validateToken(invalidToken));
+  }
+
+  @Test
+  @DisplayName("Должен сгенерировать валидный refresh-токен и извлечь userId")
+  void shouldGenerateValidRefreshTokenAndExtractUserId() {
+
+    CustomUserDetails principal = createTestPrincipal();
+
+    String refreshToken = jwtTokenProvider.generateRefreshToken(principal);
+
+    assertTrue(jwtTokenProvider.validateToken(refreshToken));
+
+    assertEquals(principal.getId(), jwtTokenProvider.getUserId(refreshToken));
+
+    // проверка, что refresh-токен отличается от access-токена
+    String accessToken = jwtTokenProvider.generateAccessToken(principal);
+    assertNotEquals(accessToken, refreshToken);
   }
 
   private CustomUserDetails createTestPrincipal() {
