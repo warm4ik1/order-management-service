@@ -16,7 +16,8 @@ public enum ApiSuccessMessage {
     USER_ORDERS_FETCHED("The user orders was successfully found."),
     REGISTRATION_COMPLETED("Registration completed successfully."),
     PROFILE_LOADED("User profile fetched successfully."),
-    LOGIN_SUCCEEDED("Login successful.");
+    LOGIN_SUCCEEDED("Login successful."),
+    TOKEN_REFRESHED("Token refreshed.");
 
     private final String message;
 

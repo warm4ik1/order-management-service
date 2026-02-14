@@ -39,6 +39,7 @@ end:
 jwt:
   secret: ${JWT_SECRET}
   expiration: 103600000
+  refreshExpiration: 604800000
 
 # logging
 logging:

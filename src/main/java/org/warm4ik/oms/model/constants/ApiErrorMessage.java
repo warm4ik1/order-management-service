@@ -14,7 +14,8 @@ public enum ApiErrorMessage {
   ORDER_ALREADY_COMPLETED("The order has already been completed! The status cannot be changed."),
   ORDER_STATUS_UPDATE_NOT_ALLOWED("Order status update not allowed."),
 
-  INVALID_TOKEN_SIGNATURE("Invalid token signature"),
+  INVALID_TOKEN_SIGNATURE("Invalid token signature."),
+  INVALID_REFRESH_TOKEN("Invalid refresh token."),
   ERROR_DURING_JWT_PROCESSING("An unexpected error occurred during JWT processing."),
   TOKEN_EXPIRED("Token expired."),
   UNEXPECTED_ERROR_OCCURRED("An unexpected error occurred. Please try again later."),
@@ -23,7 +24,7 @@ public enum ApiErrorMessage {
   ACCESS_FORBIDDEN("Access forbidden."),
 
   INVALID_ENUM_OR_FIELD_VALUE("Invalid enum or field value."),
-  MALFORMED_JSON_REQUEST("Malformed JSON request");
+  MALFORMED_JSON_REQUEST("Malformed JSON request.");
 
   private final String message;
 
