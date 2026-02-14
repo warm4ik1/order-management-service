@@ -24,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController implements UserApi {
 
-  private final UserService userServiceImpl;
+  private final UserService userService;
 
   @GetMapping()
   @PreAuthorize("hasRole('ADMIN')")
@@ -34,7 +34,7 @@ public class UserController implements UserApi {
       @RequestParam(name = "limit", defaultValue = "10") int limit) {
 
     Pageable pageable = PageRequest.of(page, limit);
-    OmsResponse<PaginationResponse<UserDTO>> response = userServiceImpl.findAllUsers(pageable);
+    OmsResponse<PaginationResponse<UserDTO>> response = userService.findAllUsers(pageable);
 
     return ResponseEntity.ok(response);
   }
@@ -44,7 +44,7 @@ public class UserController implements UserApi {
   @Override
   public ResponseEntity<Void> deleteUserById(@PathVariable(name = "id") UUID id) {
 
-    userServiceImpl.deleteUserById(id);
+    userService.deleteUserById(id);
 
     return ResponseEntity.noContent().build();
   }

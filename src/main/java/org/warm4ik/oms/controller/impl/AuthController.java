@@ -22,14 +22,14 @@ import org.warm4ik.oms.service.AuthService;
 @RequestMapping("${end.point.auth}")
 public class AuthController implements AuthApi {
 
-  private final AuthService authServiceImpl;
+  private final AuthService authService;
 
   @PostMapping("/register")
   @Override
   public ResponseEntity<OmsResponse<UserDTO>> register(
       @RequestBody @Valid RegisterUserRequest request) {
 
-    OmsResponse<UserDTO> response = authServiceImpl.register(request);
+    OmsResponse<UserDTO> response = authService.register(request);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
@@ -39,7 +39,7 @@ public class AuthController implements AuthApi {
   public ResponseEntity<OmsResponse<TokenDTO>> login(@RequestBody @Valid LoginRequest request) {
 
     OmsResponse<TokenDTO> response =
-        authServiceImpl.login(request.getUsername(), request.getPassword());
+        authService.login(request.getUsername(), request.getPassword());
 
     return ResponseEntity.ok(response);
   }
@@ -48,7 +48,7 @@ public class AuthController implements AuthApi {
   @Override
   public ResponseEntity<OmsResponse<UserDTO>> profile() {
 
-    OmsResponse<UserDTO> response = authServiceImpl.profile();
+    OmsResponse<UserDTO> response = authService.profile();
 
     return ResponseEntity.ok(response);
   }
