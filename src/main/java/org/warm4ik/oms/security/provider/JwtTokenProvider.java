@@ -26,6 +26,7 @@ public class JwtTokenProvider {
   private static final String USER_ID_CLAIM = "userId";
   private static final String USERNAME_CLAIM = "username";
   private static final String USER_ROLE_CLAIM = "role";
+  private static final String TOKEN_TYPE = "token_type";
 
   private final SecretKey secretKey;
   private final Long jwtValidityInMilliseconds;
@@ -45,6 +46,7 @@ public class JwtTokenProvider {
     claims.put(USER_ID_CLAIM, principal.getId().toString());
     claims.put(USERNAME_CLAIM, principal.getUsername());
     claims.put(USER_ROLE_CLAIM, principal.getRole().name());
+    claims.put(TOKEN_TYPE, "access");
 
     return createToken(claims, principal.getUsername(), jwtValidityInMilliseconds);
   }
@@ -52,6 +54,7 @@ public class JwtTokenProvider {
   public String generateRefreshToken(CustomUserDetails principal) {
     Map<String, Object> claims = new HashMap<>();
     claims.put(USER_ID_CLAIM, principal.getId().toString());
+    claims.put(TOKEN_TYPE, "refresh");
     return createToken(claims, principal.getUsername(), refreshTokenValidityInMilliseconds);
   }
 
@@ -99,4 +102,14 @@ public class JwtTokenProvider {
         .signWith(secretKey, SignatureAlgorithm.HS512)
         .compact();
   }
+
+  public boolean isRefreshToken(String token) {
+    try {
+      Claims claims = getAllClaimsFromToken(token);
+      return "refresh".equals(claims.get(TOKEN_TYPE));
+    } catch (JwtException e) {
+      return false;
+    }
+  }
+
 }

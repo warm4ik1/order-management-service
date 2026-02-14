@@ -91,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public OmsResponse<TokenDTO> refreshToken(String refreshToken) {
 
-    if (!jwt.validateToken(refreshToken)) {
+    if (!jwt.validateToken(refreshToken) || !jwt.isRefreshToken(refreshToken)) {
       throw new AuthenticationServiceException(ApiErrorMessage.INVALID_REFRESH_TOKEN.getMessage());
     }
 
