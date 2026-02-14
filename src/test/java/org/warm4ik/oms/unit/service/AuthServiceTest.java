@@ -259,6 +259,7 @@ public class AuthServiceTest {
         .thenReturn(newAccessToken);
     Mockito.when(jwt.generateRefreshToken(Mockito.any(CustomUserDetails.class)))
         .thenReturn(newRefreshToken);
+    Mockito.when(jwt.isRefreshToken(oldRefreshToken)).thenReturn(true);
 
     OmsResponse<TokenDTO> response = authService.refreshToken(oldRefreshToken);
 
