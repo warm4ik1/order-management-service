@@ -7,6 +7,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.warm4ik.oms.mapper.OrderMapper;
+import org.warm4ik.oms.mapper.PaginationMapper;
 import org.warm4ik.oms.model.constants.ApiErrorMessage;
 import org.warm4ik.oms.model.constants.ApiSuccessMessage;
 import org.warm4ik.oms.model.dto.OrderDTO;
@@ -42,15 +43,7 @@ public class OrderServiceImpl implements OrderService {
     Page<OrderDTO> orders =
         orderRepository.findAllByUserId(userId, pageable).map(orderMapper::orderToOrderDTO);
 
-    PaginationResponse<OrderDTO> paginationResponse =
-        new PaginationResponse<>(
-            orders.getContent(),
-            new PaginationResponse.Pagination(
-                orders.getTotalElements(),
-                pageable.getPageSize(),
-                pageable.getPageNumber() + 1,
-                orders.getTotalPages()
-                ));
+    PaginationResponse<OrderDTO> paginationResponse = PaginationMapper.toPaginationResponse(orders);
 
     return OmsResponse.createSuccessful(
         ApiSuccessMessage.USER_ORDERS_FETCHED.getMessage(), paginationResponse);
@@ -129,15 +122,8 @@ public class OrderServiceImpl implements OrderService {
   public OmsResponse<PaginationResponse<OrderDTO>> findAllOrders(Pageable pageable) {
 
     Page<OrderDTO> orders = orderRepository.findAll(pageable).map(orderMapper::orderToOrderDTO);
-    PaginationResponse<OrderDTO> paginationResponse =
-        new PaginationResponse<>(
-            orders.getContent(),
-            new PaginationResponse.Pagination(
-                orders.getTotalElements(),
-                pageable.getPageSize(),
-                pageable.getPageNumber() + 1,
-                orders.getTotalPages()
-                ));
+
+    PaginationResponse<OrderDTO> paginationResponse = PaginationMapper.toPaginationResponse(orders);
 
     return OmsResponse.createSuccessful(
         ApiSuccessMessage.ALL_ORDERS_FETCHED.getMessage(), paginationResponse);

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.warm4ik.oms.mapper.PaginationMapper;
 import org.warm4ik.oms.mapper.UserMapper;
 import org.warm4ik.oms.model.constants.ApiErrorMessage;
 import org.warm4ik.oms.model.constants.ApiSuccessMessage;
@@ -28,14 +29,7 @@ public class UserServiceImpl implements UserService {
 
     Page<UserDTO> users = userRepository.findAll(pageable).map(userMapper::userToUserDTO);
 
-    PaginationResponse<UserDTO> paginationResponse =
-        new PaginationResponse<>(
-            users.getContent(),
-            new PaginationResponse.Pagination(
-                users.getTotalElements(),
-                pageable.getPageSize(),
-                pageable.getPageNumber() + 1,
-                users.getTotalPages()));
+    PaginationResponse<UserDTO> paginationResponse = PaginationMapper.toPaginationResponse(users);
 
     return OmsResponse.createSuccessful(
         ApiSuccessMessage.ALL_USERS_FETCHED.getMessage(), paginationResponse);
