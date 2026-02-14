@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,7 +16,6 @@ import org.warm4ik.oms.model.constants.ApiErrorMessage;
 import org.warm4ik.oms.model.exception.BusinessConflictException;
 import org.warm4ik.oms.model.exception.DataExistException;
 import org.warm4ik.oms.model.exception.NotFoundException;
-import org.springframework.security.access.AccessDeniedException;
 import tools.jackson.databind.exc.InvalidFormatException;
 
 import java.util.Arrays;
@@ -52,6 +53,14 @@ public class CommonControllerAdvice {
     logStackTrace(ex);
 
     return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(AuthenticationServiceException.class)
+  @ResponseBody
+  protected ResponseEntity<String> handleAuthenticationServiceException(AuthenticationServiceException ex) {
+    logStackTrace(ex);
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
