@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.warm4ik.oms.model.dto.TokenDTO;
 import org.warm4ik.oms.model.dto.UserDTO;
 import org.warm4ik.oms.model.request.auth.LoginRequest;
+import org.warm4ik.oms.model.request.auth.RefreshTokenRequest;
 import org.warm4ik.oms.model.request.auth.RegisterUserRequest;
 import org.warm4ik.oms.model.response.OmsResponse;
 
@@ -44,4 +45,16 @@ public interface AuthApi {
     @ApiResponse(responseCode = "404", description = "User not found")
   })
   ResponseEntity<OmsResponse<UserDTO>> profile();
+
+  @Operation(
+      summary = "Refresh JWT tokens",
+      description =
+          "Validates the provided refresh token and returns a new access token and a new refresh token")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Token successfully refreshed"),
+    @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token"),
+    @ApiResponse(responseCode = "404", description = "User not found")
+  })
+  ResponseEntity<OmsResponse<TokenDTO>> refresh(@RequestBody @Valid RefreshTokenRequest refreshToken);
+
 }

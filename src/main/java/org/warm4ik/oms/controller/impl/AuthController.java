@@ -13,6 +13,7 @@ import org.warm4ik.oms.controller.AuthApi;
 import org.warm4ik.oms.model.dto.TokenDTO;
 import org.warm4ik.oms.model.dto.UserDTO;
 import org.warm4ik.oms.model.request.auth.LoginRequest;
+import org.warm4ik.oms.model.request.auth.RefreshTokenRequest;
 import org.warm4ik.oms.model.request.auth.RegisterUserRequest;
 import org.warm4ik.oms.model.response.OmsResponse;
 import org.warm4ik.oms.service.AuthService;
@@ -43,7 +44,17 @@ public class AuthController implements AuthApi {
 
     return ResponseEntity.ok(response);
   }
-  
+
+  @PostMapping("/refresh")
+  @Override
+  public ResponseEntity<OmsResponse<TokenDTO>> refresh(
+      @RequestBody @Valid RefreshTokenRequest request) {
+
+    OmsResponse<TokenDTO> response = authService.refreshToken(request.refreshToken());
+
+    return ResponseEntity.ok(response);
+  }
+
   @GetMapping("/me")
   @Override
   public ResponseEntity<OmsResponse<UserDTO>> profile() {

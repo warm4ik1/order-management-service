@@ -61,14 +61,15 @@ public class AuthServiceImpl implements AuthService {
         authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
     Object principal = auth.getPrincipal();
-
     if (!(principal instanceof CustomUserDetails userDetails)) {
       throw new AuthenticationServiceException(ApiErrorMessage.INVALID_PRINCIPAL_TYPE.getMessage());
     }
 
+    String accessToken = jwt.generateAccessToken(userDetails);
+    String refreshToken = jwt.generateRefreshToken(userDetails);
+
     return OmsResponse.createSuccessful(
-        ApiSuccessMessage.LOGIN_SUCCEEDED.getMessage(),
-        new TokenDTO(jwt.generateTokenFromPrincipal(userDetails)));
+        ApiSuccessMessage.LOGIN_SUCCEEDED.getMessage(), new TokenDTO(accessToken, refreshToken));
   }
 
   @Transactional(readOnly = true)
@@ -86,5 +87,29 @@ public class AuthServiceImpl implements AuthService {
     return OmsResponse.createSuccessful(ApiSuccessMessage.PROFILE_LOADED.getMessage(), userDTO);
   }
 
+  @Transactional(readOnly = true)
+  @Override
+  public OmsResponse<TokenDTO> refreshToken(String refreshToken) {
 
+    if (!jwt.validateToken(refreshToken)) {
+      throw new AuthenticationServiceException(ApiErrorMessage.INVALID_REFRESH_TOKEN.getMessage());
+    }
+
+    UUID userId = jwt.getUserId(refreshToken);
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(
+                () ->
+                    new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId)));
+
+    CustomUserDetails userDetails = CustomUserDetails.fromEntity(user);
+
+    String newAccessToken = jwt.generateAccessToken(userDetails);
+    String newRefreshToken = jwt.generateRefreshToken(userDetails);
+
+    return OmsResponse.createSuccessful(
+        ApiSuccessMessage.TOKEN_REFRESHED.getMessage(),
+        new TokenDTO(newAccessToken, newRefreshToken));
+  }
 }

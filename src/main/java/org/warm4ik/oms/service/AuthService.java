@@ -12,4 +12,6 @@ public interface AuthService {
   OmsResponse<TokenDTO> login(String username, String password);
 
   OmsResponse<UserDTO> profile();
+
+  OmsResponse<TokenDTO> refreshToken(String refreshToken);
 }
