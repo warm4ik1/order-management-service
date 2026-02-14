@@ -29,21 +29,30 @@ public class JwtTokenProvider {
 
   private final SecretKey secretKey;
   private final Long jwtValidityInMilliseconds;
+  private final Long refreshTokenValidityInMilliseconds;
 
   public JwtTokenProvider(
       @Value("${jwt.secret}") String secret,
-      @Value("${jwt.expiration:3600000}") long jwtValidityInMilliseconds) {
+      @Value("${jwt.expiration:3600000}") long jwtValidityInMilliseconds,
+      @Value("${jwt.refreshExpiration:604800000}") long refreshTokenValidityInMilliseconds) {
     this.secretKey = getKey(secret);
     this.jwtValidityInMilliseconds = jwtValidityInMilliseconds;
+    this.refreshTokenValidityInMilliseconds = refreshTokenValidityInMilliseconds;
   }
 
-  public String generateTokenFromPrincipal(@NonNull CustomUserDetails principal) {
+  public String generateAccessToken(@NonNull CustomUserDetails principal) {
     Map<String, Object> claims = new HashMap<>();
     claims.put(USER_ID_CLAIM, principal.getId().toString());
     claims.put(USERNAME_CLAIM, principal.getUsername());
     claims.put(USER_ROLE_CLAIM, principal.getRole().name());
 
-    return createToken(claims, principal.getUsername());
+    return createToken(claims, principal.getUsername(), jwtValidityInMilliseconds);
+  }
+
+  public String generateRefreshToken(CustomUserDetails principal) {
+    Map<String, Object> claims = new HashMap<>();
+    claims.put(USER_ID_CLAIM, principal.getId().toString());
+    return createToken(claims, principal.getUsername(), refreshTokenValidityInMilliseconds);
   }
 
   public boolean validateToken(String token) {
@@ -81,12 +90,12 @@ public class JwtTokenProvider {
     return Keys.hmacShaKeyFor(decode64);
   }
 
-  private String createToken(Map<String, Object> claims, String subject) {
+  private String createToken(Map<String, Object> claims, String subject, long validity) {
     return Jwts.builder()
         .setClaims(claims)
         .setSubject(subject)
         .setIssuedAt(new Date())
-        .setExpiration(new Date(System.currentTimeMillis() + jwtValidityInMilliseconds))
+        .setExpiration(new Date(System.currentTimeMillis() + validity))
         .signWith(secretKey, SignatureAlgorithm.HS512)
         .compact();
   }

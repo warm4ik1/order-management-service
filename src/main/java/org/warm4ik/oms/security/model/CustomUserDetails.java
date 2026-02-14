@@ -27,7 +27,7 @@ public class CustomUserDetails implements UserDetails {
   private final UserRole role;
   private final List<GrantedAuthority> authorities;
 
-  public static UserDetails fromEntity(User user) {
+  public static CustomUserDetails fromEntity(User user) {
     return new CustomUserDetails(
         user.getId(),
         user.getUsername(),
