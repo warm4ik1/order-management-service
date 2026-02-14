@@ -196,7 +196,7 @@ public class AuthServiceTest {
 
     Mockito.when(authManager.authenticate(Mockito.any(UsernamePasswordAuthenticationToken.class)))
         .thenReturn(auth);
-    Mockito.when(jwt.generateTokenFromPrincipal(userDetails)).thenReturn(token);
+    Mockito.when(jwt.generateAccessToken(userDetails)).thenReturn(token);
 
     OmsResponse<TokenDTO> response = authService.login(username, password);
 
@@ -212,7 +212,7 @@ public class AuthServiceTest {
     Assertions.assertEquals(username, captured.getPrincipal());
     Assertions.assertEquals(password, captured.getCredentials());
 
-    Mockito.verify(jwt).generateTokenFromPrincipal(userDetails);
+    Mockito.verify(jwt).generateAccessToken(userDetails);
   }
 
   @Test
@@ -235,6 +235,60 @@ public class AuthServiceTest {
     Assertions.assertEquals(
         ApiErrorMessage.INVALID_PRINCIPAL_TYPE.getMessage(), exception.getMessage());
 
-    Mockito.verify(jwt, Mockito.never()).generateTokenFromPrincipal(Mockito.any());
+    Mockito.verify(jwt, Mockito.never()).generateAccessToken(Mockito.any());
+  }
+
+  @Test
+  @DisplayName("Refresh token: успешное обновление токена")
+  void shouldReturnNewTokenDTOWhenRefreshTokenValid() {
+
+    String oldRefreshToken = "oldRefreshToken";
+    UUID userId = UUID.randomUUID();
+    User user = new User();
+    ReflectionTestUtils.setField(user, "id", userId);
+    user.setUsername("testUser");
+
+    String newAccessToken = "newAccessToken";
+    String newRefreshToken = "newRefreshToken";
+
+    Mockito.when(jwt.validateToken(oldRefreshToken)).thenReturn(true);
+    Mockito.when(jwt.getUserId(oldRefreshToken)).thenReturn(userId);
+    Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+    Mockito.when(jwt.generateAccessToken(Mockito.any(CustomUserDetails.class)))
+        .thenReturn(newAccessToken);
+    Mockito.when(jwt.generateRefreshToken(Mockito.any(CustomUserDetails.class)))
+        .thenReturn(newRefreshToken);
+
+    OmsResponse<TokenDTO> response = authService.refreshToken(oldRefreshToken);
+
+    Assertions.assertTrue(response.isSuccess());
+    Assertions.assertEquals(newAccessToken, response.getPayload().accessToken());
+    Assertions.assertEquals(newRefreshToken, response.getPayload().refreshToken());
+
+    Mockito.verify(jwt).validateToken(oldRefreshToken);
+    Mockito.verify(jwt).getUserId(oldRefreshToken);
+    Mockito.verify(userRepository).findById(userId);
+    Mockito.verify(jwt).generateAccessToken(Mockito.any(CustomUserDetails.class));
+    Mockito.verify(jwt).generateRefreshToken(Mockito.any(CustomUserDetails.class));
+  }
+
+  @Test
+  @DisplayName("Refresh token: ошибка при невалидном токене")
+  void shouldThrowAuthenticationServiceExceptionWhenTokenInvalid() {
+
+    String invalidToken = "invalidToken";
+    Mockito.when(jwt.validateToken(invalidToken)).thenReturn(false);
+
+    AuthenticationServiceException exception =
+        Assertions.assertThrows(
+            AuthenticationServiceException.class, () -> authService.refreshToken(invalidToken));
+
+    Assertions.assertEquals(
+        ApiErrorMessage.INVALID_REFRESH_TOKEN.getMessage(), exception.getMessage());
+
+    Mockito.verify(jwt).validateToken(invalidToken);
+    Mockito.verify(jwt, Mockito.never()).getUserId(Mockito.any());
+    Mockito.verify(userRepository, Mockito.never()).findById(Mockito.any());
   }
 }
