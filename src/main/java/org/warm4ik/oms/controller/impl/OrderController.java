@@ -1,0 +1,94 @@
+package org.warm4ik.oms.controller.impl;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.warm4ik.oms.controller.OrderApi;
+import org.warm4ik.oms.model.dto.OrderDTO;
+import org.warm4ik.oms.model.request.order.CreateOrderRequest;
+import org.warm4ik.oms.model.request.order.UpdateStatusOrderRequest;
+import org.warm4ik.oms.model.response.OmsResponse;
+import org.warm4ik.oms.model.response.PaginationResponse;
+import org.warm4ik.oms.service.OrderService;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("${end.point.orders}")
+@RequiredArgsConstructor
+public class OrderController implements OrderApi {
+
+  private final OrderService orderService;
+
+  @GetMapping()
+  @Override
+  public ResponseEntity<OmsResponse<PaginationResponse<OrderDTO>>> getCurrentUserOrders(
+      @RequestParam(name = "page", defaultValue = "0") int page,
+      @RequestParam(name = "limit", defaultValue = "10") int limit) {
+
+    Pageable pageable = PageRequest.of(page, limit);
+    OmsResponse<PaginationResponse<OrderDTO>> response =
+        orderService.getCurrentUserOrders(pageable);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @PutMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  @Override
+  public ResponseEntity<OmsResponse<OrderDTO>> updateStatusOrderById(
+      @PathVariable(name = "id") UUID orderId,
+      @RequestBody @Valid UpdateStatusOrderRequest request) {
+
+    OmsResponse<OrderDTO> response = orderService.updateStatusOrderById(orderId, request);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @DeleteMapping("/{id}")
+  @PreAuthorize("hasAnyRole('USER','ADMIN')")
+  @Override
+  public ResponseEntity<Void> deleteOrderById(@PathVariable(name = "id") UUID orderId) {
+
+    orderService.deleteOrderById(orderId);
+
+    return ResponseEntity.noContent().build();
+  }
+
+  @PostMapping()
+  @PreAuthorize("hasAnyRole('USER','ADMIN')")
+  @Override
+  public ResponseEntity<OmsResponse<OrderDTO>> createOrder(
+      @RequestBody @Valid CreateOrderRequest request) {
+
+    OmsResponse<OrderDTO> response = orderService.createOrder(request);
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @GetMapping("/all")
+  @PreAuthorize("hasRole('ADMIN')")
+  @Override
+  public ResponseEntity<OmsResponse<PaginationResponse<OrderDTO>>> findAllOrders(
+      @RequestParam(name = "page", defaultValue = "0") int page,
+      @RequestParam(name = "limit", defaultValue = "10") int limit) {
+
+    Pageable pageable = PageRequest.of(page, limit);
+    OmsResponse<PaginationResponse<OrderDTO>> response = orderService.findAllOrders(pageable);
+
+    return ResponseEntity.ok(response);
+  }
+}

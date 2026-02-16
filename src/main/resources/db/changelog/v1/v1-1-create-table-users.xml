@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="v1-1-create-enum-user-role" author="warm4ik">
+    <changeSet id="v1-1-create-user-role-enum" author="warm4ik">
         <sql>
             CREATE TYPE user_role AS ENUM ('USER', 'ADMIN');
         </sql>

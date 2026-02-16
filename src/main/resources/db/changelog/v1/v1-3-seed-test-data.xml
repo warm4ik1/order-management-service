@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="v1-7-enable-pgcrypto" author="warm4ik">
+        <sql>
+            CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+        </sql>
+    </changeSet>
+
+    <changeSet id="v1-8-add-test-users" author="warm4ik">
+        <insert tableName="users">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="username" value="SUPER_ADMIN"/>
+            <column name="password" value="$2a$10$7slhd7FrVX/z2/CyE0z1IOMGwAPhhc/mNj.bMP8pLTEOWkcqqSd/6"/>
+            <column name="role" value="ADMIN"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="id" valueComputed="gen_random_uuid()"/>
+            <column name="username" value="SIMPLE_USER"/>
+            <column name="password" value="$2a$10$lD81tRm2pyStt73L2P4HtuRHEqnLRCI0h7RJOoK5GwYieofgHlHHu"/>
+            <column name="role" value="USER"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="v1-9-add-test-orders-for-users" author="warm4ik">
+        <sql splitStatements="false" stripComments="false"><![CDATA[
+            CREATE OR REPLACE FUNCTION seed_test_orders() RETURNS void AS $$
+    DECLARE
+            u RECORD;
+      num_orders INT;
+      i INT;
+            BEGIN
+            FOR u IN SELECT id, username FROM users LOOP
+                num_orders := floor(random() * 6)::int;
+            FOR i IN 1..num_orders LOOP
+          INSERT INTO orders(id, user_id, description, status, created_at)
+          VALUES (
+            gen_random_uuid(),
+            u.id,
+            concat('Order ', i, ' for ', u.username),
+            'CREATED',
+            NOW()
+          );
+            END LOOP;
+            END LOOP;
+            END;
+    $$ LANGUAGE plpgsql;
+
+            SELECT seed_test_orders();
+
+            DROP FUNCTION IF EXISTS seed_test_orders();
+            ]]></sql>
+
+        <rollback>
+            <sql splitStatements="false" stripComments="false"><![CDATA[
+                DELETE FROM orders
+                WHERE description LIKE 'Order % for %';
+                ]]></sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
